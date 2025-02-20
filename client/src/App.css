@@ -1,0 +1,14 @@
+#container {
+  width: 100vw;
+  height: 100vh;
+  background-color: purple;
+  position: relative;
+}
+
+#inner-container {
+  width: 50vw;
+  height: 50vh;
+  background-color: lavender;
+  box-sizing: border-box;
+  margin: 20px;
+}

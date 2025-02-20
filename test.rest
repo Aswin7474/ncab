@@ -1,0 +1,9 @@
+POST http://localhost:3000/update
+Content-Type: application/json
+
+{
+    "action": "updateStyle",
+    "selector": "#inner-container",
+    "property": "background-color",
+    "value": "lavender"
+}
