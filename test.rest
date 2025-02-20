@@ -80,66 +80,73 @@ Content-Type: application/json
 
 {
   "type": "css",
-  "selector": "body",
-  "property": "background-color",
-  "value": "#1c1c1c"
+  "cssUpdates": [
+    { "selector": "body", "property": "background-color", "value": "#1c1c1c" },
+    { "selector": "h1, h2", "property": "color", "value": "#ffcc00" },
+    { "selector": "p", "property": "color", "value": "#ddd" },
+    { "selector": "#container", "property": "text-align", "value": "center" },
+    { "selector": ".image-grid img", "property": "border-radius", "value": "10px" },
+    { "selector": ".button", "property": "background-color", "value": "#ff5722" },
+    { "selector": ".button", "property": "padding", "value": "10px 20px" },
+    { "selector": ".button", "property": "border-radius", "value": "5px" },
+    { "selector": ".button", "property": "color", "value": "#fff" }
+  ]
 }
+
+###
+POST http://localhost:3000/update
+Content-Type: application/json
+
+{
+  "type": "html",
+  "html": "<div id='container'><h1>New Title</h1><p>Updated content!</p></div>"
+}
+
+
+###
+POST http://localhost:3000/update
+Content-Type: application/json
 
 {
   "type": "css",
-  "selector": "h1, h2",
-  "property": "color",
-  "value": "#ffcc00"
+  "cssUpdates": [
+    { "selector": "body", "property": "background-color", "value": "#1c1c1c" },
+    { "selector": "h1, h2", "property": "color", "value": "#ffcc00" }
+  ]
 }
+
+
+###
+
+POST http://localhost:3000/update
+Content-Type: application/json
 
 {
-  "type": "css",
-  "selector": "p",
-  "property": "color",
-  "value": "#ddd"
+  "type": "both",
+  "html": "<div id='container'><h1>Updated Alex Jones Page</h1><p>Adventure Awaits!</p></div>",
+  "cssUpdates": [
+    { "selector": "body", "property": "background-color", "value": "#0f0f0f" },
+    { "selector": "h1", "property": "color", "value": "#ff5722" }
+  ]
 }
+
+###
+POST http://localhost:3000/update
+Content-Type: application/json
 
 {
-  "type": "css",
-  "selector": "#container",
-  "property": "text-align",
-  "value": "center"
+  "type": "both",
+  "html": "<div id='container'>\n  <header>\n    <h1 id='name'>Alex Jones - Rock Climbing Enthusiast</h1>\n    <p>Scaling Heights, Conquering Challenges</p>\n  </header>\n  \n  <section id='about'>\n    <h2>About Me</h2>\n    <p>Hey there! I'm Alex, a passionate rock climber. The mountains are my second home, and the thrill of climbing fuels my soul. Whether it's bouldering, sport climbing, or tackling the toughest peaks, I live for the challenge!</p>\n  </section>\n  \n  <section id='gallery'>\n    <h2>Climbing Adventures</h2>\n    <div class='image-grid'>\n      <img src='https://via.placeholder.com/300' alt='Climbing a steep rock face'>\n      <img src='https://via.placeholder.com/300' alt='Hanging from a cliff edge'>\n      <img src='https://via.placeholder.com/300' alt='Reaching the summit at sunset'>\n    </div>\n  </section>\n  \n  <section id='contact'>\n    <h2>Let's Connect</h2>\n    <p>Follow my climbing adventures on social media and join me on the journey!</p>\n    <a href='#' class='button'>Instagram</a>\n    <a href='#' class='button'>YouTube</a>\n  </section>\n  \n  <footer>\n    <p>&copy; 2025 Alex Jones | Keep Climbing!</p>\n  </footer>\n</div>",
+   "cssUpdates": [
+    { "selector": "body", "property": "background-color", "value": "#1c1c1c" },
+    { "selector": "h1, h2", "property": "color", "value": "#ffcc00" },
+    { "selector": "p", "property": "color", "value": "#ddd" },
+    { "selector": "#container", "property": "text-align", "value": "center" },
+    { "selector": ".image-grid img", "property": "border-radius", "value": "10px" },
+    { "selector": ".button", "property": "background-color", "value": "#ff5722" },
+    { "selector": ".button", "property": "padding", "value": "10px 20px" },
+    { "selector": ".button", "property": "border-radius", "value": "5px" },
+    { "selector": ".button", "property": "color", "value": "#fff" }
+  ]
+
 }
-
-{
-  "type": "css",
-  "selector": ".image-grid img",
-  "property": "border-radius",
-  "value": "10px"
-}
-
-{
-  "type": "css",
-  "selector": ".button",
-  "property": "background-color",
-  "value": "#ff5722"
-}
-
-{
-  "type": "css",
-  "selector": ".button",
-  "property": "padding",
-  "value": "10px 20px"
-}
-
-{
-  "type": "css",
-  "selector": ".button",
-  "property": "border-radius",
-  "value": "5px"
-}
-
-{
-  "type": "css",
-  "selector": ".button",
-  "property": "color",
-  "value": "#fff"
-}
-
-
-

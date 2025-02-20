@@ -1,17 +1,7 @@
-#container {
-  width: 100vw;
-  height: 100vh;
-  background-color: purple;
-  position: relative;
-}
 
-#inner-container {
-  width: 50vw;
-  height: 50vh;
-  background-color: lavender;
-  box-sizing: border-box;
-  margin: 20px;
-}
-
-#new-title { color: blue; }
-body { background-color: #a4f4a4; }
+body { background-color: #1c1c1c; }
+h1, h2 { color: #ffcc00; }
+p { color: #ddd; }
+#container { text-align: center; }
+.image-grid img { border-radius: 10px; }
+.button { color: #fff; }

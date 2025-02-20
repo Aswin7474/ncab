@@ -16,6 +16,13 @@ app.use(bodyParser.json());
 const clientDir = path.join(__dirname, '..', 'client', 'src');
 const cssFilePath = path.join(clientDir, 'App.css');
 
+fs.writeFile(cssFilePath, '', (err) => {
+  if (err) {
+    console.error("Error creating/overwriting existing css file", err)
+    return;
+  }
+})
+
 // Store the current HTML content dynamically
 let htmlContent = `
   <div id="container">
@@ -28,44 +35,96 @@ let htmlContent = `
 `;
 
 // Function to update CSS rules in the file
-function updateCssRule(cssContent, selector, property, value) {
-  const regex = new RegExp(`${selector}\\s*{[^}]*}`, 'g');
-  const newRule = `${selector} { ${property}: ${value}; }`;
-  return cssContent.match(regex) ? cssContent.replace(regex, newRule) : cssContent + '\n' + newRule;
+function updateCssRules(cssContent, updates) {
+  updates.forEach(({ selector, property, value }) => {
+    const regex = new RegExp(`${selector}\\s*{[^}]*}`, 'g');
+    const newRule = `${selector} { ${property}: ${value}; }`;
+    cssContent = cssContent.match(regex) ? cssContent.replace(regex, newRule) : cssContent + '\n' + newRule;
+  });
+  return cssContent;
 }
 
 // Handle CSS & HTML updates via POST request
+// app.post('/update', (req, res) => {
+//   const { type, html, cssUpdates } = req.body;
+
+//   if (type === 'css' && Array.isArray(cssUpdates)) {
+//     fs.readFile(cssFilePath, 'utf8', (readErr, cssContent) => {
+//       if (readErr) return res.status(500).send('Error reading CSS file');
+
+//       const updatedCss = updateCssRules(cssContent, cssUpdates);
+
+//       fs.writeFile(cssFilePath, updatedCss, 'utf8', (writeErr) => {
+//         if (writeErr) return res.status(500).send('Error writing CSS file');
+
+//         io.emit('cssUpdated', { timestamp: Date.now() });
+//         res.send('CSS updated successfully');
+//       });
+//     });
+//   } else if (type === 'html') {
+//     if (!html) {
+//       return res.status(400).send('Missing "html" field in request body');
+//     }
+
+//     // Replace the entire HTML content dynamically
+//     htmlContent = html;
+
+//     // Emit updated HTML to all connected clients
+//     io.emit('htmlUpdated', { htmlContent });
+
+//     res.send('HTML updated successfully');
+//   } else {
+//     res.status(400).send('Invalid type');
+//   }
+// });
+
 app.post('/update', (req, res) => {
-  const { type, html, selector, property, value } = req.body;
+  const { type, html, cssUpdates } = req.body;
 
-  if (type === 'css') {
-    fs.readFile(cssFilePath, 'utf8', (readErr, cssContent) => {
-      if (readErr) return res.status(500).send('Error reading CSS file');
+  if (!type || (type !== 'html' && type !== 'css' && type !== 'both')) {
+    return res.status(400).send('Invalid type. Use "html", "css", or "both".');
+  }
 
-      const updatedCss = updateCssRule(cssContent, selector, property, value);
+  let htmlUpdated = false;
+  let cssUpdated = false;
 
-      fs.writeFile(cssFilePath, updatedCss, 'utf8', (writeErr) => {
-        if (writeErr) return res.status(500).send('Error writing CSS file');
+  // **HTML Update Handling**
+  if (type === 'html' || type === 'both') {
+    if (!html) return res.status(400).send('Missing HTML content.');
+    htmlContent = html;
+    io.emit('htmlUpdated', { htmlContent });
+    htmlUpdated = true;
+  }
 
-        io.emit('cssUpdated', { timestamp: Date.now() });
-        res.send('CSS updated successfully');
-      });
-    });
-
-  } else if (type === 'html') {
-    if (!html) {
-      return res.status(400).send('Missing "html" field in request body');
+  // **CSS Update Handling**
+  if (type === 'css' || type === 'both') {
+    if (!Array.isArray(cssUpdates) || cssUpdates.length === 0) {
+      return res.status(400).send('Missing or invalid CSS updates.');
     }
 
-    // Replace the entire HTML content dynamically
-    htmlContent = html;
+    fs.readFile(cssFilePath, 'utf8', (readErr, cssContent) => {
+      if (readErr) return res.status(500).send('Error reading CSS file.');
 
-    // Emit updated HTML to all connected clients
-    io.emit('htmlUpdated', { htmlContent });
+      const updatedCss = updateCssRules(cssContent, cssUpdates);
 
-    res.send('HTML updated successfully');
-  } else {
-    res.status(400).send('Invalid type');
+      fs.writeFile(cssFilePath, updatedCss, 'utf8', (writeErr) => {
+        if (writeErr) return res.status(500).send('Error writing CSS file.');
+
+        io.emit('cssUpdated', { timestamp: Date.now() });
+        cssUpdated = true;
+
+        if (htmlUpdated) {
+          res.send('Both HTML and CSS updated successfully.');
+        } else {
+          res.send('CSS updated successfully.');
+        }
+      });
+    });
+    return;
+  }
+
+  if (htmlUpdated) {
+    res.send('HTML updated successfully.');
   }
 });
 
