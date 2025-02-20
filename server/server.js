@@ -1,69 +1,78 @@
-const express = require("express");
+const express = require('express');
 const http = require('http');
-const path = require("path");
-const socketIo = require('socket.io');
-const fs = require('fs');
+const { Server } = require('socket.io');
 const cors = require('cors');
+const bodyParser = require('body-parser');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, {
-    cors: {
-      origin: '*', // In production, set this to your React app's origin
-      methods: ['GET', 'POST']
-    }
-});
+const io = new Server(server, { cors: { origin: '*' } });
 
-app.use(express.json());
 app.use(cors());
+app.use(bodyParser.json());
 
 const clientDir = path.join(__dirname, '..', 'client', 'src');
 const cssFilePath = path.join(clientDir, 'App.css');
-console.log(cssFilePath)
 
+// Store the current HTML content dynamically
+let htmlContent = `
+  <div id="container">
+    <h1>Container 1</h1>
+    <div id="inner-container">
+      <h1>Container 2</h1>
+      <h1 id="title">Welcome to My Website</h1>
+    </div>
+  </div>
+`;
+
+// Function to update CSS rules in the file
 function updateCssRule(cssContent, selector, property, value) {
-    const regex = new RegExp(`(${selector}\\s*{[^}]*?)(${property}\\s*:\\s*[^;]+;)`, 'i');
-    if (regex.test(cssContent)) {
-      return cssContent.replace(regex, `$1${property}: ${value};`);
-    } else {
-      return cssContent + `\n${selector} { ${property}: ${value}; }`;
-    }
-  }
-
-app.post('/update', (req, res) => {
-const { action, selector, property, value } = req.body;
-if (action !== 'updateStyle' || !selector || !property || !value) {
-    return res.status(400).send('Invalid command');
+  const regex = new RegExp(`${selector}\\s*{[^}]*}`, 'g');
+  const newRule = `${selector} { ${property}: ${value}; }`;
+  return cssContent.match(regex) ? cssContent.replace(regex, newRule) : cssContent + '\n' + newRule;
 }
 
-fs.readFile(cssFilePath, 'utf8', (readErr, cssContent) => {
-    if (readErr) {
-    console.error('Error reading CSS file:', readErr);
-    return res.status(500).send('Error reading CSS file');
-    }
+// Handle CSS & HTML updates via POST request
+app.post('/update', (req, res) => {
+  const { type, html, selector, property, value } = req.body;
 
-    const updatedCss = updateCssRule(cssContent, selector, property, value);
+  if (type === 'css') {
+    fs.readFile(cssFilePath, 'utf8', (readErr, cssContent) => {
+      if (readErr) return res.status(500).send('Error reading CSS file');
 
-    fs.writeFile(cssFilePath, updatedCss, 'utf8', (writeErr) => {
-    if (writeErr) {
-        console.error('Error writing CSS file:', writeErr);
-        return res.status(500).send('Error writing CSS file');
-    }
+      const updatedCss = updateCssRule(cssContent, selector, property, value);
 
-    // Broadcast the update to all connected clients
-    io.emit('cssUpdate', { selector, property, value });
-    res.send('CSS updated successfully');
+      fs.writeFile(cssFilePath, updatedCss, 'utf8', (writeErr) => {
+        if (writeErr) return res.status(500).send('Error writing CSS file');
+
+        io.emit('cssUpdated', { timestamp: Date.now() });
+        res.send('CSS updated successfully');
+      });
     });
+
+  } else if (type === 'html') {
+    if (!html) {
+      return res.status(400).send('Missing "html" field in request body');
+    }
+
+    // Replace the entire HTML content dynamically
+    htmlContent = html;
+
+    // Emit updated HTML to all connected clients
+    io.emit('htmlUpdated', { htmlContent });
+
+    res.send('HTML updated successfully');
+  } else {
+    res.status(400).send('Invalid type');
+  }
 });
+
+// Send the current HTML when a client connects
+io.on('connection', (socket) => {
+  console.log('Client connected');
+  socket.emit('htmlUpdated', { htmlContent }); // Send initial HTML on connect
 });
 
-app.get('/check', (req, res) => {
-    res.json({message: "it worked"});
-})
-
-
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
-
+server.listen(3000, () => console.log('Server running on port 3000'));

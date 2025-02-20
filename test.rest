@@ -7,3 +7,139 @@ Content-Type: application/json
     "property": "background-color",
     "value": "lavender"
 }
+
+
+###
+
+POST http://localhost:3000/update
+Content-Type: application/json
+
+{
+  "type": "html",
+  "html": "<div><h1>New Page</h1><p>Updated HTML dynamically!</p></div>"
+}
+
+
+###
+POST http://localhost:3000/update
+Content-Type: application/json
+
+{
+  "type": "html",
+  "html": "<div id='new-container'><h1 id='new-title'>Hello, World!</h1><p>This is a dynamically updated page.</p></div>"
+}
+
+###
+
+POST http://localhost:3000/update
+Content-Type: application/json
+
+{
+  "type": "css",
+  "selector": "#new-title",
+  "property": "color",
+  "value": "blue"
+}
+
+
+###
+POST http://localhost:3000/update
+Content-Type: application/json
+
+{
+  "type": "html",
+  "html": "<div id='container'>\n  <header>\n    <h1 id='name'>Alex Jones - Rock Climber</h1>\n  </header>\n  <section id='about'>\n    <h2>About Me</h2>\n    <p>Hey there! I'm Alex, a passionate rock climber who loves scaling mountains and exploring nature.</p>\n  </section>\n  <section id='gallery'>\n    <h2>Climbing Adventures</h2>\n  </section>\n  <footer>\n    <p>Follow my adventures on <a href='#'>Instagram</a> & <a href='#'>YouTube</a></p>\n  </footer>\n</div>"
+}
+
+
+###
+
+POST http://localhost:3000/update
+Content-Type: application/json
+
+{
+  "type": "css",
+  "selector": "body",
+  "property": "background-color",
+  "value": "#a4f4a4"
+}
+
+###
+POST http://localhost:3000/update
+Content-Type: application/json
+
+{
+  "type": "html",
+  "html": "<div id='container'>\n  <header>\n    <h1 id='name'>Alex Jones - Rock Climbing Enthusiast</h1>\n    <p>Scaling Heights, Conquering Challenges</p>\n  </header>\n  \n  <section id='about'>\n    <h2>About Me</h2>\n    <p>Hey there! I'm Alex, a passionate rock climber. The mountains are my second home, and the thrill of climbing fuels my soul. Whether it's bouldering, sport climbing, or tackling the toughest peaks, I live for the challenge!</p>\n  </section>\n  \n  <section id='gallery'>\n    <h2>Climbing Adventures</h2>\n    <div class='image-grid'>\n      <img src='https://via.placeholder.com/300' alt='Climbing a steep rock face'>\n      <img src='https://via.placeholder.com/300' alt='Hanging from a cliff edge'>\n      <img src='https://via.placeholder.com/300' alt='Reaching the summit at sunset'>\n    </div>\n  </section>\n  \n  <section id='contact'>\n    <h2>Let's Connect</h2>\n    <p>Follow my climbing adventures on social media and join me on the journey!</p>\n    <a href='#' class='button'>Instagram</a>\n    <a href='#' class='button'>YouTube</a>\n  </section>\n  \n  <footer>\n    <p>&copy; 2025 Alex Jones | Keep Climbing!</p>\n  </footer>\n</div>"
+}
+
+
+###
+POST http://localhost:3000/update
+Content-Type: application/json
+
+{
+  "type": "css",
+  "selector": "body",
+  "property": "background-color",
+  "value": "#1c1c1c"
+}
+
+{
+  "type": "css",
+  "selector": "h1, h2",
+  "property": "color",
+  "value": "#ffcc00"
+}
+
+{
+  "type": "css",
+  "selector": "p",
+  "property": "color",
+  "value": "#ddd"
+}
+
+{
+  "type": "css",
+  "selector": "#container",
+  "property": "text-align",
+  "value": "center"
+}
+
+{
+  "type": "css",
+  "selector": ".image-grid img",
+  "property": "border-radius",
+  "value": "10px"
+}
+
+{
+  "type": "css",
+  "selector": ".button",
+  "property": "background-color",
+  "value": "#ff5722"
+}
+
+{
+  "type": "css",
+  "selector": ".button",
+  "property": "padding",
+  "value": "10px 20px"
+}
+
+{
+  "type": "css",
+  "selector": ".button",
+  "property": "border-radius",
+  "value": "5px"
+}
+
+{
+  "type": "css",
+  "selector": ".button",
+  "property": "color",
+  "value": "#fff"
+}
+
+
+

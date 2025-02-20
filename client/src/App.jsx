@@ -5,39 +5,32 @@ import './App.css'
 const socket = io('http://localhost:3000');
 
 function App() {
-  // const [styleRules, setStyleRules] = useState({});
+  
+  const [htmlContent, setHtmlContent] = useState('<h1>Loading...</h1>');
 
   useEffect(() => {
-    // Listen for the 'cssUpdated' event from the backend
     socket.on('cssUpdated', (data) => {
       const { timestamp } = data;
-      // Force refresh the CSS file by updating the href attribute
       const cssLink = document.getElementById('main-css');
       if (cssLink) {
-        // Append a query parameter to bypass the cache
         cssLink.setAttribute('href', `/styles.css?v=${timestamp}`);
       }
     });
 
-    // Cleanup on component unmount
+    socket.on('htmlUpdated', ({ htmlContent }) => {
+      setHtmlContent(htmlContent);
+    });
+
     return () => {
       socket.off('cssUpdated');
+      socket.off('htmlUpdated');
     };
   }, []);
 
-
   return (
-    <div id="container" >
-        <h1>Container 1</h1>
-        <div id="inner-container" >
-            <h1>
-                Container 2
-            </h1>
+    <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+  );
 
-        </div>
-
-    </div>
-  )
 }
 
 export default App

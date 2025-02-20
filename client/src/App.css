@@ -12,3 +12,6 @@
   box-sizing: border-box;
   margin: 20px;
 }
+
+#new-title { color: blue; }
+body { background-color: #a4f4a4; }
