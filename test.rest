@@ -148,5 +148,69 @@ Content-Type: application/json
     { "selector": ".button", "property": "border-radius", "value": "5px" },
     { "selector": ".button", "property": "color", "value": "#fff" }
   ]
+}
 
+###
+POST http://localhost:3000/update
+Content-Type: application/json
+
+{
+  "type": "both",
+  "html": "<header id='header'>\n  <h1>Dark Mode Fashion</h1>\n  <nav>\n    <ul>\n      <li><a href='#'>Home</a></li>\n      <li><a href='#'>Shop</a></li>\n      <li><a href='#'>About</a></li>\n      <li><a href='#'>Contact</a></li>\n    </ul>\n  </nav>\n</header>\n\n<section id='hero'>\n  <h2>Style That Speaks</h2>\n  <p>Explore the latest trends in dark fashion.</p>\n  <button class='button'>Shop Now</button>\n</section>\n\n<section id='products'>\n  <div class='product'>\n    <img src='shirt-dark.jpg' alt='Dark Shirt'>\n    <h3>Blackout Shirt</h3>\n    <p>$29.99</p>\n    <button class='button'>Add to Cart</button>\n  </div>\n  <div class='product'>\n    <img src='hoodie-dark.jpg' alt='Dark Hoodie'>\n    <h3>Midnight Hoodie</h3>\n    <p>$49.99</p>\n    <button class='button'>Add to Cart</button>\n  </div>\n</section>\n\n<footer>\n  <p>© 2025 Dark Mode Fashion. All rights reserved.</p>\n</footer>",
+  "css": [
+    { "selector": "body", "property": "background-color", "value": "#121212" },
+    { "selector": "body", "property": "color", "value": "#ffffff" },
+    { "selector": "header", "property": "background-color", "value": "#1a1a1a" },
+    { "selector": "header h1", "property": "color", "value": "#ffcc00" },
+    { "selector": "nav ul", "property": "list-style", "value": "none" },
+    { "selector": "nav ul li", "property": "display", "value": "inline" },
+    { "selector": "nav ul li a", "property": "color", "value": "#ffcc00" },
+    { "selector": "#hero", "property": "text-align", "value": "center" },
+    { "selector": "#hero h2", "property": "color", "value": "#ffcc00" },
+    { "selector": ".product", "property": "border", "value": "1px solid #333" },
+    { "selector": ".button", "property": "background-color", "value": "#ff5722" },
+    { "selector": ".button", "property": "color", "value": "#fff" },
+    { "selector": ".button", "property": "padding", "value": "10px 20px" },
+    { "selector": ".button", "property": "border-radius", "value": "5px" }
+  ]
+}
+
+###
+POST http://localhost:3000/update
+Content-Type: application/json
+
+{
+  "type": "both",
+  "html": "<div id='container'>\n  <header>\n    <h1 id='college-name'>Rajalakshmi Engineering College</h1>\n    <p id='motto'>20 Years of Ruining Students' Lives</p>\n  </header>\n  \n  <section id='about'>\n    <h2>About Us</h2>\n    <p>Located in the heart of Thandalam, Chennai, Rajalakshmi Engineering College (REC) has been dedicated to crushing the dreams of students for over two decades. With our world-class ability to provide inedible food, nightmare-inducing hostels, and an unwavering commitment to handing out arrears, we ensure that every student gets a truly unforgettable experience.</p>\n  </section>\n  \n  <section id='facilities'>\n    <h2>Our Facilities</h2>\n    <ul>\n      <li><strong>Hostels:</strong> Experience the joy of non-functional fans, mosquito-infested rooms, and showers that haven't worked since 2005.</li>\n      <li><strong>Mess Food:</strong> Where every meal is an adventure! You never know whether it’s undercooked, overcooked, or simply inedible.</li>\n      <li><strong>Exams & Arrears:</strong> Why pass when you can pay and repeat? Our unique system ensures every student gets at least one arrear per semester.</li>\n    </ul>\n  </section>\n  \n  <section id='testimonials'>\n    <h2>Student Reviews</h2>\n    <div class='review'>\n      <p><strong>Rahul, CSE Batch 2022:</strong> 'They said engineering is tough, but surviving REC is tougher. I came in with dreams; now I just want to graduate.'</p>\n    </div>\n    <div class='review'>\n      <p><strong>Priya, EEE Batch 2023:</strong> 'Every day I pray that the mess food doesn’t kill me. 10/10 would not recommend.'</p>\n    </div>\n    <div class='review'>\n      <p><strong>Karthik, Mech Batch 2021:</strong> 'I don’t know whether I studied mechanical engineering or cooking. Arrear exams made sure I did both.'</p>\n    </div>\n  </section>\n  \n  <footer>\n    <p>&copy; 2025 Rajalakshmi Engineering College | Making Life Miserable Since 2005</p>\n  </footer>\n</div>",
+  "cssUpdates": [
+    { "selector": "body", "property": "background-color", "value": "#4B0082" },
+    { "selector": "h1, h2", "property": "color", "value": "#ffffff" },
+    { "selector": "p, li", "property": "color", "value": "#ddd" },
+    { "selector": "#container", "property": "text-align", "value": "center" },
+    { "selector": "header", "property": "background-color", "value": "#6A0DAD" },
+    { "selector": "header", "property": "padding", "value": "20px" },
+    { "selector": "#motto", "property": "font-style", "value": "italic" },
+    { "selector": "ul", "property": "list-style", "value": "none" },
+    { "selector": ".review", "property": "border", "value": "1px solid white" },
+    { "selector": ".review", "property": "padding", "value": "10px" },
+    { "selector": ".review", "property": "margin", "value": "10px" },
+    { "selector": ".review p", "property": "font-style", "value": "italic" }
+  ]
+}
+
+###
+POST http://localhost:3000/update
+Content-Type: application/json
+
+{
+  "type": "both",
+  "html": "<!DOCTYPE html>\n<html>\n<head>\n  <meta charset='UTF-8' />\n  <title>Rajalakshmi Engineering College Halva</title>\n  <link rel='stylesheet' href='style.css' />\n</head>\n<body>\n  <header>\n    <h1>Rajalakshmi Engineering College Halva</h1>\n    <h2>Motto: Each student gets at least one halva</h2>\n  </header>\n  <main>\n    <section id='about'>\n      <h2>About Us</h2>\n      <p>Rajalakshmi Engineering College Halva is made by extracting essence from students and giving each halva to their students and parents. Halva is only given to those who have paid their fees in full.</p>\n    </section>\n    <section id='products'>\n      <h2>Our Products</h2>\n      <ul>\n        <li>Student Halva</li>\n        <li>Parent Halva</li>\n        <li>Faculty Halva</li>\n      </ul>\n    </section>\n    <section id='contact'>\n      <h2>Contact Us</h2>\n      <p>Email: contact@rechalva.com</p>\n      <p>Phone: 1-800-HALVA-ME</p>\n    </section>\n  </main>\n  <footer>\n    <p>Copyright © 2023 Rajalakshmi Engineering College Halva</p>\n  </footer>\n</body>\n</html>",
+  "cssUpdates": [
+    { "selector": "body", "property": "background-color", "value": "#222" },
+    { "selector": "h1", "property": "color", "value": "#f00" },
+    { "selector": "h2", "property": "color", "value": "#ff0" },
+    { "selector": "p", "property": "color", "value": "#fff" },
+    { "selector": "ul li", "property": "color", "value": "#fff" },
+    { "selector": "a", "property": "color", "value": "#f0f" }
+  ]
 }

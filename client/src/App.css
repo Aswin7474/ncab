@@ -1,7 +1,7 @@
 
-body { background-color: #1c1c1c; }
-h1, h2 { color: #ffcc00; }
-p { color: #ddd; }
-#container { text-align: center; }
-.image-grid img { border-radius: 10px; }
-.button { color: #fff; }
+body { background-color: #222; }
+h1 { color: #f00; }
+h2 { color: #ff0; }
+p { color: #fff; }
+ul li { color: #fff; }
+a { color: #f0f; }
