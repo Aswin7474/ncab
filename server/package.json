@@ -9,8 +9,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
+    "@google/generative-ai": "^0.24.0",
     "axios": "^1.7.9",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",

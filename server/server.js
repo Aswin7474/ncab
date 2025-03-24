@@ -1,11 +1,19 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const fs = require('fs');
-const path = require('path');
-const sanitizeHtml = require('sanitize-html');
+import express from 'express';
+import http from 'http';
+import { Server } from 'socket.io';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import sanitizeHtml from 'sanitize-html';
+import dotenv from 'dotenv';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import axios from 'axios';
+
+// Load environment variables
+dotenv.config();
+
 
 const app = express();
 const server = http.createServer(app);
@@ -14,8 +22,18 @@ const io = new Server(server, { cors: { origin: '*' } });
 app.use(cors());
 app.use(bodyParser.json());
 
-const API_KEY = process.env.GEMINI_API_KEY
-const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+const GEMINI_API_KEY = process.env.APIKEY
+
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+const config = {
+  max_output_tokens:2048, temperature:0.4, top_p:1, top_k:32
+}
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const clientDir = path.join(__dirname, '..', 'client', 'src');
 const cssFilePath = path.join(clientDir, 'App.css');
 
@@ -27,15 +45,29 @@ fs.writeFile(cssFilePath, '', (err) => {
 })
 
 // Store the current HTML content dynamically
-let htmlContent = `
-  <div id="container">
-    <h1>Container 1</h1>
-    <div id="inner-container">
-      <h1>Container 2</h1>
-      <h1 id="title">Welcome to My Website</h1>
-    </div>
-  </div>
-`;
+// let htmlContent = `
+// <!DOCTYPE html>
+// <html lang="en">
+// <head>
+//     <meta charset="UTF-8">
+//     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//     <title>No-Code AI Builder</title>
+//     <script src="https://cdn.tailwindcss.com"></script>
+// </head>
+// <body class="bg-gray-50 min-h-screen">
+//     <!-- Header -->
+//     <header class="flex justify-between items-center px-8 py-4 bg-white shadow-md">
+//         <!-- Logo -->
+//         <h1 class="text-3xl font-extrabold text-blue-600">No-Code AI Builder</h1>
+        
+//         <!-- Login Button -->
+//         <button class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700">Log In</button>
+//     </header>
+// </body>
+// </html>
+// `;
+
+let htmlContent = `<h1>Nothing Yet</h1>`
 
 // Function to update CSS rules in the file
 function updateCssRules(cssContent, updates) {
@@ -46,6 +78,88 @@ function updateCssRules(cssContent, updates) {
   });
   return cssContent;
 }
+
+
+
+const prompt = `
+You are an AI that generates JSON-formatted updates for a website. Your response must always be a JSON object in this exact structure:
+
+{
+  "type": "both",  // Can be "html", "css", or "both"
+  "html": "<!-- Full HTML content here. IT MUST BE IN A SINGLE LINE, NO MULTI LINE REPLY. -->",
+  "cssUpdates": [
+    { "selector": "selector1", "property": "property1", "value": "value1" },
+    { "selector": "selector2", "property": "property2", "value": "value2" }
+  ]
+}
+
+### Formatting Rules:
+1. **Since the reply is in JSON, the entire html part must be single lined.**
+2. **Do not use any characters that would break the json.**
+3. The **"html"** field should contain a full structured website with proper indentation.  
+4. The **"cssUpdates"** array should have multiple JSON objects, each updating a specific CSS rule.  
+5. The colors and design should match the theme specified in the request.  
+6. Make the website unique, engaging, and include personality where needed.  
+7. **Do NOT include explanations or text outside of the JSON response.** 
+8. **Usage of framework like tailwind is allowed and even encouraged.** 
+9. **All website must Header, navigation bar, A hero section, Testimonials, and a Footer.**
+10. **Ensure that text remains easily readable by maintaining a strong contrast between the font color and the background. Avoid using dark fonts on dark backgrounds or light fonts on light backgrounds.**
+
+### Example Requests:
+1. **A website for a rock climber**  
+   - Theme: Adventurous, dark mode, energetic  
+   - Include sections: About Me, Climbing Adventures, Social Media Links  
+   - Colors: Dark backgrounds, bright contrast for headings  
+
+2. **An online clothing store**  
+   - Theme: Modern, minimalistic, dark aesthetic  
+   - Include sections: Hero Banner, Featured Products, Contact Us  
+   - Colors: Dark shades, neon highlights  
+
+### IMPORTANT:  
+- The response **must only contain a valid JSON object**.  
+- Do **not** include explanations, additional text, or formatting outside JSON.  
+- Ensure all HTML tags and CSS rules are valid and properly formatted.  
+- Follow all specified formatting rules, including **\\n for new lines** and **single quotes ' inside HTML attributes, not around entire lines.**  
+- **DO NOT add unnecessary single quotes ' at the start or end of lines or newlines.**  
+
+`;
+
+async function makeGeminiCall(text) {
+  const completed_prompt = prompt + `Now, generate the JSON response for the following request:  
+"${text}}"` 
+  const result = await model.generateContent(completed_prompt, config);
+  const response = result.response.text()
+  // console.log(response)
+  const sliced_res = response.slice(8, response.length - 4)
+  // console.log(sliced_res)
+  const json_resp = JSON.parse(sliced_res)
+  updateHtmlAndCss(json_resp['html'], json_resp['cssUpdates'])
+}
+
+// Route to receive text from frontend
+app.post("/send-text", (req, res) => {
+  const { text } = req.body;
+  console.log("Received text:", text);
+  res.json({ message: "Text received successfully", receivedText: text });
+  makeGeminiCall(text)
+});
+
+
+async function updateHtmlAndCss(newHtml, cssUpdates) {
+  try {
+      const response = await axios.post('http://localhost:3000/update', {
+          type: 'both',
+          html: newHtml,
+          cssUpdates
+      });
+      console.log('Response:', response.data);
+  } catch (error) {
+      console.error('Error updating HTML and CSS:', error.response ? error.response.data : error.message);
+  }
+}
+
+
 
 app.post('/update', (req, res) => {
   const { type, html, cssUpdates } = req.body;
@@ -61,21 +175,14 @@ app.post('/update', (req, res) => {
   if (type === 'html' || type === 'both') {
     if (!html) return res.status(400).json({ error: 'Missing HTML content.' });
 
-    // **Sanitize HTML to prevent XSS & escape problematic characters**
+    // Allow full HTML document structure while still sanitizing content
     let cleanHtml = sanitizeHtml(html, {
-        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'video', 'source', 'iframe']),
-        allowedAttributes: {
-            a: ['href', 'name', 'target'],
-            img: ['src', 'alt'],
-            video: ['controls', 'src'],
-            source: ['src', 'type'],
-            iframe: ['src', 'allowfullscreen'],
-            '*': ['class', 'id', 'style']
-        },
-        allowedIframeHostnames: ['www.youtube.com', 'player.vimeo.com'],
+        allowedTags: false, // Allow full HTML structure, including <!DOCTYPE>
+        allowedAttributes: false, // Allow all attributes
+        allowedIframeHostnames: ['www.youtube.com', 'player.vimeo.com']
     });
 
-    cleanHtml = cleanHtml.replace(/\n/g, ''); // Removes new line characters
+    // cleanHtml = cleanHtml.replace(/\n/g, ''); // Remove new line characters
 
     htmlContent = cleanHtml; // Store sanitized HTML
     io.emit('htmlUpdated', { htmlContent });

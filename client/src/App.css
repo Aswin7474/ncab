@@ -1,3 +1,6 @@
 
-body { font-family: sans-serif; }
-a { text-decoration: none; }
+body { font-family: 'Roboto', sans-serif; }
+header { background-color: #1a202c; }
+a { color: #f56565; }
+h1 { color: #f56565; }
+.hero { background: linear-gradient(to right, #805ad5, #63b3ed); }

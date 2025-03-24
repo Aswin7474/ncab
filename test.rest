@@ -673,3 +673,57 @@ Content-Type: application/json
     }
   ]
 }
+
+
+###
+POST http://localhost:3000/update
+Content-Type: application/json
+
+{
+  "type": "both",
+  "html": "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>NeonByte Gaming Cafe</title><link href='https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css' rel='stylesheet'></head><body class='bg-gray-900 text-white font-sans'><header class='bg-gray-800 py-4'><div class='container mx-auto px-4 flex items-center justify-between'><div class='text-2xl font-bold'>NeonByte</div><nav><ul class='flex space-x-6'><li class='hover:text-pink-500'><a href='#vr'>VR Zones</a></li><li class='hover:text-pink-500'><a href='#pc'>PC Gaming</a></li><li class='hover:text-pink-500'><a href='#arcade'>Retro Arcade</a></li><li class='hover:text-pink-500'><a href='#esports'>Esports Lounge</a></li></ul></nav></div></header><section class='hero py-20 bg-gradient-to-r from-purple-500 to-blue-500'><div class='container mx-auto px-4 text-center'><h1 class='text-5xl font-extrabold mb-4'>Welcome to NeonByte</h1><p class='text-xl mb-8'>Experience the future of gaming, today.</p><a href='#' class='bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-full'>Explore the Universe</a></div></section><section id='vr' class='py-16'><div class='container mx-auto px-4'><h2 class='text-3xl font-bold mb-8 text-pink-400'>VR Gaming Zones</h2><div class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'><div class='bg-gray-800 rounded-lg p-6'><h3 class='text-xl font-semibold mb-2'>Immersive Adventures</h3><p>Step into new worlds with our state-of-the-art VR setups. Explore, fight, and discover.</p></div><div class='bg-gray-800 rounded-lg p-6'><h3 class='text-xl font-semibold mb-2'>Multiplayer Mayhem</h3><p>Team up with friends or face off in intense VR multiplayer battles.</p></div><div class='bg-gray-800 rounded-lg p-6'><h3 class='text-xl font-semibold mb-2'>Cutting-Edge Technology</h3><p>Experience the latest VR headsets and powerful gaming rigs for unparalleled immersion.</p></div></div></div></section><section id='pc' class='py-16 bg-gray-700'><div class='container mx-auto px-4'><h2 class='text-3xl font-bold mb-8 text-blue-400'>High-Performance PC Gaming</h2><div class='grid grid-cols-1 md:grid-cols-2 gap-8'><div class='bg-gray-800 rounded-lg p-6'><h3 class='text-xl font-semibold mb-2'>Blazing Fast PCs</h3><p>Game on the most powerful PCs, optimized for competitive gaming and stunning visuals.</p></div><div class='bg-gray-800 rounded-lg p-6'><h3 class='text-xl font-semibold mb-2'>Latest Titles</h3><p>Play the newest games, optimized and ready to go with all the latest hardware.</p></div></div></div></section><section id='arcade' class='py-16'><div class='container mx-auto px-4'><h2 class='text-3xl font-bold mb-8 text-purple-400'>Retro Arcade Corner</h2><div class='grid grid-cols-1 md:grid-cols-2 gap-8'><div class='bg-gray-800 rounded-lg p-6'><h3 class='text-xl font-semibold mb-2'>Classic Games</h3><p>Relive the nostalgia with classic arcade games from the golden era.</p></div><div class='bg-gray-800 rounded-lg p-6'><h3 class='text-xl font-semibold mb-2'>All-Time Favorites</h3><p>Enjoy Pac-Man, Donkey Kong, Street Fighter, and many more!</p></div></div></div></section><section id='esports' class='py-16 bg-gray-700'><div class='container mx-auto px-4'><h2 class='text-3xl font-bold mb-8 text-pink-400'>Esports Lounge</h2><div class='grid grid-cols-1 md:grid-cols-2 gap-8'><div class='bg-gray-800 rounded-lg p-6'><h3 class='text-xl font-semibold mb-2'>Tournament Ready</h3><p>Compete in esports tournaments in a dedicated, comfortable setting.</p></div><div class='bg-gray-800 rounded-lg p-6'><h3 class='text-xl font-semibold mb-2'>Spectator-Friendly</h3><p>Watch top players compete with high-definition screens and comfortable seating.</p></div></div></div></section><footer class='bg-gray-800 py-6'><div class='container mx-auto px-4 text-center'>&copy; 2024 NeonByte. All rights reserved.</div></footer></body></html>",
+  "cssUpdates": [
+    { "selector": "body", "property": "font-family", "value": "sans-serif" },
+    { "selector": "a", "property": "color", "value": "#ffffff" },
+    { "selector": ".hero", "property": "color", "value": "#ffffff" }
+  ]
+}
+
+
+###
+POST http://localhost:3000/update
+Content-Type: application/json
+
+{
+  "type": "both",
+  "html": "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Neonverse Gaming Café</title><link href='https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css' rel='stylesheet'></head><body class='bg-gray-900 text-white font-sans'><header class='bg-gray-800 py-4'><div class='container mx-auto flex items-center justify-between px-4'><div class='text-2xl font-bold tracking-widest text-pink-500'>NEONVERSE</div><nav><ul class='flex space-x-6'><li class='hover:text-blue-400'><a href='#vr'>VR Gaming</a></li><li class='hover:text-blue-400'><a href='#pc'>PC Gaming</a></li><li class='hover:text-blue-400'><a href='#arcade'>Retro Arcade</a></li><li class='hover:text-blue-400'><a href='#esports'>Esports Lounge</a></li></ul></nav></div></header><section class='bg-gradient-to-r from-purple-700 to-blue-700 py-20'><div class='container mx-auto text-center'><h1 class='text-5xl font-extrabold tracking-wider mb-4'>Welcome to Neonverse</h1><p class='text-xl mb-8'>Where the future of gaming comes alive.</p><a href='#explore' class='bg-pink-500 hover:bg-pink-700 text-white font-bold py-3 px-6 rounded-full'>Explore the Universe</a></div></section><section id='vr' class='py-16'><div class='container mx-auto px-4'><h2 class='text-3xl font-bold text-pink-500 mb-8 text-center'>VR Gaming Zones</h2><div class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'><div class='bg-gray-800 rounded-lg p-6'><img src='https://via.placeholder.com/400x250/007bff/ffffff?text=VR+Experience' alt='VR Experience' class='rounded-md mb-4'> <h3 class='text-xl font-semibold mb-2'>Immersive Worlds</h3><p>Dive into breathtaking virtual realities with our state-of-the-art VR setups.</p></div><div class='bg-gray-800 rounded-lg p-6'><img src='https://via.placeholder.com/400x250/6f42c1/ffffff?text=VR+Adventure' alt='VR Adventure' class='rounded-md mb-4'><h3 class='text-xl font-semibold mb-2'>Multiplayer Mayhem</h3><p>Team up with friends or battle it out in thrilling multiplayer VR games.</p></div><div class='bg-gray-800 rounded-lg p-6'><img src='https://via.placeholder.com/400x250/dc3545/ffffff?text=VR+Arcade' alt='VR Arcade' class='rounded-md mb-4'><h3 class='text-xl font-semibold mb-2'>Arcade Classics</h3><p>Relive the classics with our VR arcade cabinets.</p></div></div></div></section><section id='pc' class='py-16 bg-gray-800'><div class='container mx-auto px-4'><h2 class='text-3xl font-bold text-blue-500 mb-8 text-center'>High-Performance PC Gaming</h2><div class='grid grid-cols-1 md:grid-cols-2 gap-8'><div class='bg-gray-700 rounded-lg p-6'><img src='https://via.placeholder.com/600x300/28a745/ffffff?text=PC+Gaming' alt='PC Gaming' class='rounded-md mb-4'><h3 class='text-xl font-semibold mb-2'>Cutting-Edge Rigs</h3><p>Experience the latest games on our powerful PCs, featuring the newest GPUs and high refresh rate monitors.</p></div><div class='bg-gray-700 rounded-lg p-6'><img src='https://via.placeholder.com/600x300/ffc107/000000?text=Gaming+Setup' alt='Gaming Setup' class='rounded-md mb-4'><h3 class='text-xl font-semibold mb-2'>Comfortable Environment</h3><p>Enjoy a comfortable and optimized gaming environment with ergonomic chairs and custom setups.</p></div></div></div></section><section id='arcade' class='py-16'><div class='container mx-auto px-4'><h2 class='text-3xl font-bold text-pink-500 mb-8 text-center'>Retro Arcade Corner</h2><div class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'><div class='bg-gray-800 rounded-lg p-6'><img src='https://via.placeholder.com/400x250/007bff/ffffff?text=Arcade+Classics' alt='Arcade Classics' class='rounded-md mb-4'><h3 class='text-xl font-semibold mb-2'>Classic Games</h3><p>Relive the golden age of gaming with our selection of retro arcade games.</p></div><div class='bg-gray-800 rounded-lg p-6'><img src='https://via.placeholder.com/400x250/6f42c1/ffffff?text=Pinball' alt='Pinball' class='rounded-md mb-4'><h3 class='text-xl font-semibold mb-2'>Pinball Machines</h3><p>Test your skills on our collection of classic pinball machines.</p></div><div class='bg-gray-800 rounded-lg p-6'><img src='https://via.placeholder.com/400x250/dc3545/ffffff?text=Gaming+Cabinets' alt='Gaming Cabinets' class='rounded-md mb-4'><h3 class='text-xl font-semibold mb-2'>Gaming Cabinets</h3><p>Enjoy multiplayer fun.</p></div></div></div></section><section id='esports' class='py-16 bg-gray-800'><div class='container mx-auto px-4'><h2 class='text-3xl font-bold text-blue-500 mb-8 text-center'>Esports Lounge</h2><p class='text-center mb-8'>Watch and compete in esports tournaments.</p><div class='grid grid-cols-1 md:grid-cols-2 gap-8'><div class='bg-gray-700 rounded-lg p-6'><img src='https://via.placeholder.com/600x300/28a745/ffffff?text=Esports+Tournament' alt='Esports Tournament' class='rounded-md mb-4'><h3 class='text-xl font-semibold mb-2'>Competitive Gaming</h3><p>Participate in tournaments and show off your gaming skills.</p></div><div class='bg-gray-700 rounded-lg p-6'><img src='https://via.placeholder.com/600x300/ffc107/000000?text=Spectator+Area' alt='Spectator Area' class='rounded-md mb-4'><h3 class='text-xl font-semibold mb-2'>Spectator Area</h3><p>Watch the matches and cheer for your favorite teams.</p></div></div></div></section><footer class='bg-gray-800 py-8'><div class='container mx-auto text-center'><p>&copy; 2024 Neonverse Gaming Café. All rights reserved.</p></div></footer></body></html>",
+  "cssUpdates": [
+    {
+      "selector": "body",
+      "property": "font-family",
+      "value": "'Roboto', sans-serif"
+    },
+    {
+      "selector": "h1, h2, h3",
+      "property": "color",
+      "value": "#f0f0f0"
+    },
+    {
+      "selector": ".container",
+      "property": "max-width",
+      "value": "1200px"
+    },
+    {
+      "selector": ".container",
+      "property": "padding-left",
+      "value": "1rem"
+    },
+    {
+      "selector": ".container",
+      "property": "padding-right",
+      "value": "1rem"
+    }
+  ]
+}
+
+
