@@ -5,6 +5,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
+const sanitizeHtml = require('sanitize-html');
 
 const app = express();
 const server = http.createServer(app);
@@ -13,6 +14,8 @@ const io = new Server(server, { cors: { origin: '*' } });
 app.use(cors());
 app.use(bodyParser.json());
 
+const API_KEY = process.env.GEMINI_API_KEY
+const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
 const clientDir = path.join(__dirname, '..', 'client', 'src');
 const cssFilePath = path.join(clientDir, 'App.css');
 
@@ -44,45 +47,11 @@ function updateCssRules(cssContent, updates) {
   return cssContent;
 }
 
-// Handle CSS & HTML updates via POST request
-// app.post('/update', (req, res) => {
-//   const { type, html, cssUpdates } = req.body;
-
-//   if (type === 'css' && Array.isArray(cssUpdates)) {
-//     fs.readFile(cssFilePath, 'utf8', (readErr, cssContent) => {
-//       if (readErr) return res.status(500).send('Error reading CSS file');
-
-//       const updatedCss = updateCssRules(cssContent, cssUpdates);
-
-//       fs.writeFile(cssFilePath, updatedCss, 'utf8', (writeErr) => {
-//         if (writeErr) return res.status(500).send('Error writing CSS file');
-
-//         io.emit('cssUpdated', { timestamp: Date.now() });
-//         res.send('CSS updated successfully');
-//       });
-//     });
-//   } else if (type === 'html') {
-//     if (!html) {
-//       return res.status(400).send('Missing "html" field in request body');
-//     }
-
-//     // Replace the entire HTML content dynamically
-//     htmlContent = html;
-
-//     // Emit updated HTML to all connected clients
-//     io.emit('htmlUpdated', { htmlContent });
-
-//     res.send('HTML updated successfully');
-//   } else {
-//     res.status(400).send('Invalid type');
-//   }
-// });
-
 app.post('/update', (req, res) => {
   const { type, html, cssUpdates } = req.body;
 
   if (!type || (type !== 'html' && type !== 'css' && type !== 'both')) {
-    return res.status(400).send('Invalid type. Use "html", "css", or "both".');
+    return res.status(400).json({ error: 'Invalid type. Use "html", "css", or "both".' });
   }
 
   let htmlUpdated = false;
@@ -90,33 +59,51 @@ app.post('/update', (req, res) => {
 
   // **HTML Update Handling**
   if (type === 'html' || type === 'both') {
-    if (!html) return res.status(400).send('Missing HTML content.');
-    htmlContent = html;
+    if (!html) return res.status(400).json({ error: 'Missing HTML content.' });
+
+    // **Sanitize HTML to prevent XSS & escape problematic characters**
+    let cleanHtml = sanitizeHtml(html, {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'video', 'source', 'iframe']),
+        allowedAttributes: {
+            a: ['href', 'name', 'target'],
+            img: ['src', 'alt'],
+            video: ['controls', 'src'],
+            source: ['src', 'type'],
+            iframe: ['src', 'allowfullscreen'],
+            '*': ['class', 'id', 'style']
+        },
+        allowedIframeHostnames: ['www.youtube.com', 'player.vimeo.com'],
+    });
+
+    cleanHtml = cleanHtml.replace(/\n/g, ''); // Removes new line characters
+
+    htmlContent = cleanHtml; // Store sanitized HTML
     io.emit('htmlUpdated', { htmlContent });
     htmlUpdated = true;
-  }
+}
+
 
   // **CSS Update Handling**
   if (type === 'css' || type === 'both') {
     if (!Array.isArray(cssUpdates) || cssUpdates.length === 0) {
-      return res.status(400).send('Missing or invalid CSS updates.');
+      return res.status(400).json({ error: 'Missing or invalid CSS updates.' });
     }
 
     fs.readFile(cssFilePath, 'utf8', (readErr, cssContent) => {
-      if (readErr) return res.status(500).send('Error reading CSS file.');
+      if (readErr) return res.status(500).json({ error: 'Error reading CSS file.' });
 
       const updatedCss = updateCssRules(cssContent, cssUpdates);
 
       fs.writeFile(cssFilePath, updatedCss, 'utf8', (writeErr) => {
-        if (writeErr) return res.status(500).send('Error writing CSS file.');
+        if (writeErr) return res.status(500).json({ error: 'Error writing CSS file.' });
 
         io.emit('cssUpdated', { timestamp: Date.now() });
         cssUpdated = true;
 
         if (htmlUpdated) {
-          res.send('Both HTML and CSS updated successfully.');
+          res.json({ message: 'Both HTML and CSS updated successfully.' });
         } else {
-          res.send('CSS updated successfully.');
+          res.json({ message: 'CSS updated successfully.' });
         }
       });
     });
@@ -124,7 +111,7 @@ app.post('/update', (req, res) => {
   }
 
   if (htmlUpdated) {
-    res.send('HTML updated successfully.');
+    res.json({ message: 'HTML updated successfully.' });
   }
 });
 

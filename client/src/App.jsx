@@ -18,6 +18,7 @@ function App() {
     });
 
     socket.on('htmlUpdated', ({ htmlContent }) => {
+      console.log(htmlContent)
       setHtmlContent(htmlContent);
     });
 
