@@ -45,29 +45,7 @@ fs.writeFile(cssFilePath, '', (err) => {
 })
 
 // Store the current HTML content dynamically
-// let htmlContent = `
-// <!DOCTYPE html>
-// <html lang="en">
-// <head>
-//     <meta charset="UTF-8">
-//     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//     <title>No-Code AI Builder</title>
-//     <script src="https://cdn.tailwindcss.com"></script>
-// </head>
-// <body class="bg-gray-50 min-h-screen">
-//     <!-- Header -->
-//     <header class="flex justify-between items-center px-8 py-4 bg-white shadow-md">
-//         <!-- Logo -->
-//         <h1 class="text-3xl font-extrabold text-blue-600">No-Code AI Builder</h1>
-        
-//         <!-- Login Button -->
-//         <button class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700">Log In</button>
-//     </header>
-// </body>
-// </html>
-// `;
-
-let htmlContent = `<h1>Nothing Yet</h1>`
+let htmlContent = ``
 
 // Function to update CSS rules in the file
 function updateCssRules(cssContent, updates) {
@@ -104,17 +82,19 @@ You are an AI that generates JSON-formatted updates for a website. Your response
 8. **Usage of framework like tailwind is allowed and even encouraged.** 
 9. **All website must Header, navigation bar, A hero section, Testimonials, and a Footer.**
 10. **Ensure that text remains easily readable by maintaining a strong contrast between the font color and the background. Avoid using dark fonts on dark backgrounds or light fonts on light backgrounds.**
+11. **Avoid including images in the response.**
+12. **Make sure the website is single paged with no redirects.**
 
 ### Example Requests:
-1. **A website for a rock climber**  
-   - Theme: Adventurous, dark mode, energetic  
-   - Include sections: About Me, Climbing Adventures, Social Media Links  
-   - Colors: Dark backgrounds, bright contrast for headings  
+**A website for a rock climber**  
+- **Theme:** Adventurous, dark mode, energetic  
+- **Sections:** About Me, Climbing Adventures, Social Media Links  
+- **Colors:** Dark backgrounds with bright contrast for headings  
+- **Typography:** Bold, modern fonts that evoke excitement   
+- **Layout:** One-page scrolling with parallax effects  
+- **Additional Features:** Smooth transitions, hover effects on images  
 
-2. **An online clothing store**  
-   - Theme: Modern, minimalistic, dark aesthetic  
-   - Include sections: Hero Banner, Featured Products, Contact Us  
-   - Colors: Dark shades, neon highlights  
+Ensure the design captures the thrill of rock climbing.  
 
 ### IMPORTANT:  
 - The response **must only contain a valid JSON object**.  
@@ -125,24 +105,76 @@ You are an AI that generates JSON-formatted updates for a website. Your response
 
 `;
 
+const first_config = {
+  max_output_tokens:1024, temperature:0.4, top_p:1, top_k:32
+}
+
 async function makeGeminiCall(text) {
+  console.log('makegeminicall was called')
+  const first_prompt = `Create a website design with the following specifications:  
+
+  - **Theme:** [Describe the overall aesthetic and mood]  
+  - **Sections:** [List the key sections required]  
+  - **Colors:** [Specify primary and accent colors]  
+  - **Typography:** [Mention font preferences if any]  
+  - **Layout:** [Mention grid-based, single-page, multi-page, etc.]  
+  - **Additional Features:** [Specify animations, effects, interactivity]  
+
+  ### IMPORTANT: 
+      - Ensure the design is visually engaging and aligns with the given theme.
+      - Avoid including images.
+      - Do **not** include explanations, additional text, or formatting outside the specified format.
+
+  Now give reply for this request:
+  `
+
+  const first_result = await model.generateContent(first_prompt + text, first_config);
+  const first_response = first_result.response.text()
+
   const completed_prompt = prompt + `Now, generate the JSON response for the following request:  
-"${text}}"` 
+"${first_response}}"` 
   const result = await model.generateContent(completed_prompt, config);
   const response = result.response.text()
-  // console.log(response)
+  console.log(response)
   const sliced_res = response.slice(8, response.length - 4)
   // console.log(sliced_res)
   const json_resp = JSON.parse(sliced_res)
+  console.log(json_resp)
+  if (!json_resp['cssUpdates']) {
+    console.log("css update dont work for some reason")
+
+  }
+
   updateHtmlAndCss(json_resp['html'], json_resp['cssUpdates'])
+}
+
+async function changeStyleGemini(text) {
+  console.log('changestylegemini was called')
+  const extra_instructions = ` This is the website i have now. Do **not** include explanations, additional text, or formatting outside of the html with tailwind. Now make the changes I ask you to.  ${text}`
+  console.log(htmlContent + extra_instructions)
+  const result = await model.generateContent(htmlContent + extra_instructions, config);
+  const response = result.response.text()
+  const sliced_res = response.slice(8, response.length - 4)
+  htmlContent = sliced_res
+
+  io.emit('htmlUpdated', { htmlContent });
+
 }
 
 // Route to receive text from frontend
 app.post("/send-text", (req, res) => {
-  const { text } = req.body;
+  const { text, changeStyles } = req.body;
+  // console.log(req.body)
   console.log("Received text:", text);
+  // console.log("type of changestyles: " + typeof changeStyles['changeInStyle'])
+  console.log("Change in style: " + changeStyles['changeInStyle'])
   res.json({ message: "Text received successfully", receivedText: text });
-  makeGeminiCall(text)
+  if (changeStyles['changeInStyle'] == true) {
+    changeStyleGemini(text)
+  } else {
+    makeGeminiCall(text)
+  }
+  
 });
 
 

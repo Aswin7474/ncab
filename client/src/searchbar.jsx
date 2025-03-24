@@ -2,16 +2,19 @@ import { useState } from "react";
 import { Send } from "lucide-react";
 import axios from "axios";
 
-export default function ChatInput() {
+export default function ChatInput(changeStyles) {
   const [text, setText] = useState("");
 
   const sendMessage = async () => {
-      try {
-          const response = await axios.post("http://localhost:3000/send-text", { text });
-          console.log(response.data);
-      } catch (error) {
-          console.error("Error sending text:", error);
-      }
+    if (!text.trim()) return; // Prevent sending empty messages
+    console.log(changeStyles)
+    try {
+      const response = await axios.post("http://localhost:3000/send-text", { text, changeStyles });
+      console.log(response.data);
+      setText(""); // Clear the input field after sending
+    } catch (error) {
+      console.error("Error sending text:", error);
+    }
   };
 
   return (
@@ -23,7 +26,7 @@ export default function ChatInput() {
           className="flex-grow outline-none bg-transparent text-gray-900 text-base px-2"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          // onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()} // Allow sending with Enter
         />
         <button
           onClick={sendMessage}

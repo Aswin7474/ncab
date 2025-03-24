@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
-import './App.css'
+import './App.css';
 import ChatInput from './searchbar';
 
 const socket = io('http://localhost:3000');
@@ -16,18 +16,15 @@ function App() {
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <!-- Header -->
     <header class="flex justify-between items-center px-8 py-4 bg-white shadow-md">
-        <!-- Logo -->
         <h1 class="text-3xl font-extrabold text-blue-600">No-Code AI Builder</h1>
-        
-        <!-- Login Button -->
         <button class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700">Log In</button>
     </header>
 </body>
 </html>
 `);
-  const [htmlContent, setHtmlContent] = useState('<h1>Loading...</h1>');
+  const [htmlContent, setHtmlContent] = useState('');
+  const [changeStyles, setChangeStyles] = useState(false);
 
   useEffect(() => {
     socket.on('cssUpdated', (data) => {
@@ -39,7 +36,7 @@ function App() {
     });
 
     socket.on('htmlUpdated', ({ htmlContent }) => {
-      console.log(htmlContent)
+      console.log(htmlContent);
       setHtmlContent(htmlContent);
     });
 
@@ -49,76 +46,51 @@ function App() {
     };
   }, []);
 
-  // return (
-  //   <div className="flex flex-col h-screen">
-  //     {/* Main content area */}
-  //     <div id="defaultLandingPage" className="flex-1 overflow-auto" dangerouslySetInnerHTML={{ __html: defaultHtmlContent }} />
-  //     {/* 16:9 Aspect Ratio Box */}
-  //     <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
-  //       <div
-  //         id="generated website"
-  //         className="absolute top-0 left-0 w-full h-full bg-gray-200"
-  //         dangerouslySetInnerHTML={{ __html: htmlContent }}
-  //       />
-  //     </div>
-
-
-  //     <div className="fixed bottom-0 w-full bg-white shadow-md p-4">
-  //       <ChatInput />
-  //     </div>
-  //   </div>
-  // );
-
-  // return (
-  //   <div className="flex flex-col h-screen">
-  //     {/* Top Section: Default Landing Page (Scrollable) */}
-  //     <div id="defaultLandingPage" className="flex-1 overflow-auto p-4" dangerouslySetInnerHTML={{ __html: defaultHtmlContent }} />
-  
-  //     {/* Middle Section: Fixed 16:9 Box (Scrollable Content) */}
-  //     <div className="fixed left-0 w-full bg-gray-200 shadow-lg overflow-auto" style={{ top: "50%", height: "56.25%", transform: "translateY(-50%)" }}>
-  //       <div
-  //         id="generated website"
-  //         className="w-full h-full overflow-auto"
-  //         dangerouslySetInnerHTML={{ __html: htmlContent }}
-  //       />
-  //     </div>
-  
-  //     {/* Bottom Section: Fixed Chat Input */}
-  //     <div className="fixed bottom-0 w-full bg-white shadow-md p-4">
-  //       <ChatInput />
-  //     </div>
-  //   </div>
-  // );
-
   return (
     <div className="flex flex-col h-screen">
-      {/* Top Section: Default Landing Page (Scrollable) */}
-      <div id="defaultLandingPage" className="flex-none p-4" dangerouslySetInnerHTML={{ __html: defaultHtmlContent }} />
+      <div
+        id="defaultLandingPage"
+        className="flex-none p-4"
+        dangerouslySetInnerHTML={{ __html: defaultHtmlContent }}
+      />
   
-      {/* Middle Section: Dynamically Sized 16:9 Box */}
-      <div className="flex-none w-full bg-gray-200 shadow-lg overflow-auto" 
-        style={{ 
-          height: "calc(100vh - 8rem - 4rem)", // Adjust to fit perfectly
-          maxHeight: "calc(100vw * 9 / 16)", // Ensures 16:9 ratio
-        }}>
-        <div
-          id="generated website"
-          className="w-full h-full overflow-auto"
-          dangerouslySetInnerHTML={{ __html: htmlContent }}
-        />
+      <div
+        className="flex-none w-full bg-gray-200 shadow-lg overflow-auto"
+        style={{
+          height: "calc(100vh - 8rem - 4rem)",
+          maxHeight: "calc(100vw * 9 / 16)",
+        }}
+      >
+        {htmlContent === '' ? (
+          <div className="mt-12 mx-auto max-w-2xl p-6 bg-white shadow-lg rounded-lg text-center">
+            <h2 className="text-2xl font-semibold text-gray-900">
+              Start typing below to get started
+            </h2>
+          </div>
+        ) : (
+          <div
+            id="generated-website"
+            className="w-full h-full overflow-auto"
+            dangerouslySetInnerHTML={{ __html: htmlContent }}
+          />
+        )}
       </div>
   
-      {/* Bottom Section: Fixed Chat Input */}
-      <div className="fixed bottom-0 w-full bg-white shadow-md p-4">
-        <ChatInput />
+      <div className="fixed bottom-0 w-full bg-white shadow-md p-4 flex items-center justify-between">
+        <ChatInput changeInStyle={changeStyles} />
+        <div className="flex items-center space-x-2">
+          <input 
+            type="checkbox" 
+            id="changeStyles" 
+            checked={changeStyles} 
+            onChange={() => setChangeStyles(!changeStyles)} 
+            className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring focus:ring-blue-300"
+          />
+          <label htmlFor="changeStyles" className="text-gray-700 font-medium">Change Style</label>
+        </div>
       </div>
     </div>
   );
-  
-  
-  
-
-
 }
 
-export default App
+export default App;
