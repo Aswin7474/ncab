@@ -25,10 +25,22 @@ app.use(bodyParser.json());
 const GEMINI_API_KEY = process.env.APIKEY
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+
+// const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro-exp-03-25" });
+// const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-001" })
+// const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-thinking-exp-01-21" })
+
+
+// this
+// const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
+
+// or this
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+
 const config = {
-  max_output_tokens:2048, temperature:0.4, top_p:1, top_k:32
+  max_output_tokens:8192, temperature:0.4, top_p:1, top_k:32
 }
+
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -109,8 +121,50 @@ const first_config = {
   max_output_tokens:1024, temperature:0.4, top_p:1, top_k:32
 }
 
-async function makeGeminiCall(text) {
-  console.log('makegeminicall was called')
+// async function makeGeminiCall(text) {
+//   console.log('makegeminicall was called')
+//   const first_prompt = `Create a website design with the following specifications:  
+
+//   - **Theme:** [Describe the overall aesthetic and mood]  
+//   - **Sections:** [List the key sections required]  
+//   - **Colors:** [Specify primary and accent colors]  
+//   - **Typography:** [Mention font preferences if any]  
+//   - **Layout:** [Mention grid-based, single-page, multi-page, etc.]  
+//   - **Additional Features:** [Specify animations, effects, interactivity]  
+
+//   ### IMPORTANT: 
+//       - Ensure the design is visually engaging and aligns with the given theme.
+//       - Avoid including images.
+//       - Do **not** include explanations, additional text, or formatting outside the specified format.
+//       - Always keep in mind color contrast of text with background, if background is dark, use light text and vicee versa.
+
+//   Now give reply for this request:
+//   `
+
+//   const first_result = await model.generateContent(first_prompt + text, first_config);
+//   const first_response = first_result.response.text()
+
+//   const completed_prompt = prompt + `Now, generate the JSON response for the following request:  
+// "${first_response}}"` 
+//   const result = await model.generateContent(completed_prompt, config);
+//   const response = result.response.text()
+//   console.log(response)
+//   const sliced_res = response.slice(8, response.length - 4)
+//   // console.log(sliced_res)
+//   const json_resp = JSON.parse(sliced_res)
+//   console.log(json_resp)
+//   if (!json_resp['cssUpdates']) {
+//     console.log("css update dont work for some reason")
+
+//   }
+
+//   updateHtmlAndCss(json_resp['html'], json_resp['cssUpdates'])
+// }
+
+
+async function makeGeminiCall(text, retryCount = 3) {
+  console.log('makeGeminiCall was called');
+
   const first_prompt = `Create a website design with the following specifications:  
 
   - **Theme:** [Describe the overall aesthetic and mood]  
@@ -124,39 +178,61 @@ async function makeGeminiCall(text) {
       - Ensure the design is visually engaging and aligns with the given theme.
       - Avoid including images.
       - Do **not** include explanations, additional text, or formatting outside the specified format.
+      - Always keep in mind color contrast of text with background, if background is dark, use light text and vice versa.
 
   Now give reply for this request:
-  `
+  `;
 
-  const first_result = await model.generateContent(first_prompt + text, first_config);
-  const first_response = first_result.response.text()
+  try {
+    const first_result = await model.generateContent(first_prompt + text, first_config);
+    const first_response = first_result.response.text();
 
-  const completed_prompt = prompt + `Now, generate the JSON response for the following request:  
-"${first_response}}"` 
-  const result = await model.generateContent(completed_prompt, config);
-  const response = result.response.text()
-  console.log(response)
-  const sliced_res = response.slice(8, response.length - 4)
-  // console.log(sliced_res)
-  const json_resp = JSON.parse(sliced_res)
-  console.log(json_resp)
-  if (!json_resp['cssUpdates']) {
-    console.log("css update dont work for some reason")
+    const completed_prompt = prompt + `Now, generate the JSON response for the following request:  
+  "${first_response}"`;
 
+    const result = await model.generateContent(completed_prompt, config);
+    const response = result.response.text();
+    console.log(response);
+
+    const sliced_res = response.slice(8, response.length - 4); // Ensure this slicing logic is valid
+
+    let json_resp;
+    try {
+      json_resp = JSON.parse(sliced_res);
+    } catch (error) {
+      console.error("JSON parsing failed:", error.message);
+      if (retryCount > 0) {
+        console.log(`Retrying... (${retryCount} attempts left)`);
+        return makeGeminiCall(text, retryCount - 1);
+      } else {
+        throw new Error("Max retries reached. JSON parsing failed.");
+      }
+    }
+
+    console.log(json_resp);
+    if (!json_resp['cssUpdates']) {
+      console.log("CSS update doesn't exist for some reason");
+    }
+
+    updateHtmlAndCss(json_resp['html'], json_resp['cssUpdates']);
+
+  } catch (error) {
+    console.error("Error in makeGeminiCall:", error.message);
   }
-
-  updateHtmlAndCss(json_resp['html'], json_resp['cssUpdates'])
 }
+
 
 async function changeStyleGemini(text) {
   console.log('changestylegemini was called')
-  const extra_instructions = ` This is the website i have now. Do **not** include explanations, additional text, or formatting outside of the html with tailwind. Now make the changes I ask you to.  ${text}`
+  const extra_instructions = ` This is the website i have now. Only change what i tell you to. Do **not** include explanations, additional text, or formatting outside of the html with tailwind. Now make the changes I ask you to.  ${text}`
   console.log(htmlContent + extra_instructions)
   const result = await model.generateContent(htmlContent + extra_instructions, config);
   const response = result.response.text()
   const sliced_res = response.slice(8, response.length - 4)
   htmlContent = sliced_res
 
+  console.log("updated: -----------------------------------------------")
+  console.log(htmlContent)
   io.emit('htmlUpdated', { htmlContent });
 
 }
@@ -164,12 +240,12 @@ async function changeStyleGemini(text) {
 // Route to receive text from frontend
 app.post("/send-text", (req, res) => {
   const { text, changeStyles } = req.body;
-  // console.log(req.body)
+  console.log(req.body)
   console.log("Received text:", text);
-  // console.log("type of changestyles: " + typeof changeStyles['changeInStyle'])
-  console.log("Change in style: " + changeStyles['changeInStyle'])
+  console.log("type of changestyles: " + typeof changeStyles)
+  console.log("Change in style: " + changeStyles)
   res.json({ message: "Text received successfully", receivedText: text });
-  if (changeStyles['changeInStyle'] == true) {
+  if (changeStyles == true) {
     changeStyleGemini(text)
   } else {
     makeGeminiCall(text)
@@ -227,24 +303,24 @@ app.post('/update', (req, res) => {
     if (!Array.isArray(cssUpdates) || cssUpdates.length === 0) {
       return res.status(400).json({ error: 'Missing or invalid CSS updates.' });
     }
-
-    fs.readFile(cssFilePath, 'utf8', (readErr, cssContent) => {
-      if (readErr) return res.status(500).json({ error: 'Error reading CSS file.' });
-
-      const updatedCss = updateCssRules(cssContent, cssUpdates);
-
-      fs.writeFile(cssFilePath, updatedCss, 'utf8', (writeErr) => {
-        if (writeErr) return res.status(500).json({ error: 'Error writing CSS file.' });
-
-        io.emit('cssUpdated', { timestamp: Date.now() });
-        cssUpdated = true;
-
-        if (htmlUpdated) {
-          res.json({ message: 'Both HTML and CSS updated successfully.' });
-        } else {
-          res.json({ message: 'CSS updated successfully.' });
-        }
-      });
+  
+    // Convert CSS updates array into a formatted CSS string
+    const newCssContent = cssUpdates
+      .map(update => `${update.selector} { ${update.property}: ${update.value}; }`)
+      .join('\n');
+  
+    // Overwrite the CSS file with new content (wiping previous contents)
+    fs.writeFile(cssFilePath, newCssContent, 'utf8', (writeErr) => {
+      if (writeErr) return res.status(500).json({ error: 'Error writing CSS file.' });
+  
+      io.emit('cssUpdated', { timestamp: Date.now() });
+      cssUpdated = true;
+  
+      if (htmlUpdated) {
+        res.json({ message: 'Both HTML and CSS updated successfully.' });
+      } else {
+        res.json({ message: 'CSS updated successfully.' });
+      }
     });
     return;
   }

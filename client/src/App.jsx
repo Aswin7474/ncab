@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
+import axios from 'axios';
+import { Send } from 'lucide-react';
+import LoadingAnimation from './loading';
 import './App.css';
-import ChatInput from './searchbar';
 
 const socket = io('http://localhost:3000');
 
 function App() {
-  const [defaultHtmlContent, setDefaultHtmlContent] = useState(`
+  const [typeToGetStarted, setTypeToGetStarted] = useState(true);
+  const [header, setHeader] = useState(`
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,15 +19,16 @@ function App() {
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <header class="flex justify-between items-center px-8 py-4 bg-white shadow-md">
-        <h1 class="text-3xl font-extrabold text-blue-600">No-Code AI Builder</h1>
-        <button class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700">Log In</button>
-    </header>
+<header class="fixed top-0 left-0 w-full flex justify-between items-center px-8 py-4 bg-white shadow-md">
+    <h1 class="text-3xl font-extrabold text-blue-600">No-Code AI Builder</h1>
+</header>
 </body>
 </html>
-`);
+  `);
   const [htmlContent, setHtmlContent] = useState('');
   const [changeStyles, setChangeStyles] = useState(false);
+  const [text, setText] = useState("");
+  const [loadState, setLoadState] = useState(false)
 
   useEffect(() => {
     socket.on('cssUpdated', (data) => {
@@ -37,7 +41,12 @@ function App() {
 
     socket.on('htmlUpdated', ({ htmlContent }) => {
       console.log(htmlContent);
+      setLoadState(false);
       setHtmlContent(htmlContent);
+
+
+      console.log(`load state: ${loadState}`)
+      console.log(`Type to get started: ${typeToGetStarted}`)
     });
 
     return () => {
@@ -46,27 +55,119 @@ function App() {
     };
   }, []);
 
+  const sendMessage = async () => {
+    if (!text.trim()) return; // Prevent sending empty messages
+    try {
+
+      setTypeToGetStarted(false); 
+      setLoadState(true)
+      const response = await axios.post("http://localhost:3000/send-text", { text, changeStyles });
+      console.log(response.data);
+      setText(""); // Clear the input field after sending
+
+      console.log(`load state: ${loadState}`)
+      console.log(`Type to get started: ${typeToGetStarted}`)
+      console.log(`changeStyles: ${changeStyles}`)
+
+
+    } catch (error) {
+      console.error("Error sending text:", error);
+    }
+  };
+
+  // return (
+  //   <div className="flex flex-col h-screen">
+  //     <div
+  //       id="header"
+  //       className="flex-none p-4"
+  //       dangerouslySetInnerHTML={{ __html: header }}
+  //     />
+
+  //     <div
+  //       id='main-content'
+  //       className="flex-none w-full bg-gray-200 shadow-lg overflow-auto"
+  //       style={{
+  //         height: "calc(100vh - 8rem - 4rem)",
+  //         maxHeight: "calc(100vw * 9 / 16)",
+  //       }}
+  //     >
+  //       {typeToGetStarted ? (
+  //         <div className="mt-12 mx-auto max-w-2xl p-6 bg-white shadow-lg rounded-lg text-center">
+  //           <h2 className="text-2xl font-semibold text-gray-900">
+  //             Start typing below to get started
+  //           </h2>
+  //         </div>
+  //       ) : loadState ? (
+  //         <LoadingAnimation />
+  //       ) : (
+  //         <div
+  //           id="generated-website"
+  //           className="w-full h-full overflow-auto"
+  //           dangerouslySetInnerHTML={{ __html: htmlContent }}
+  //         />
+  //       )}
+  //     </div>
+
+
+  //     <div className="fixed bottom-0 w-full bg-white shadow-md p-4 flex items-center justify-between">
+  //       <div className="w-full max-w-2xl mx-auto p-4">
+  //         <div className="flex items-center bg-white border border-gray-300 rounded-2xl p-3 shadow-md focus-within:ring-2 focus-within:ring-blue-500">
+  //           <input
+  //             type="text"
+  //             placeholder="Type a message..."
+  //             className="flex-grow outline-none bg-transparent text-gray-900 text-base px-2"
+  //             value={text}
+  //             onChange={(e) => setText(e.target.value)}
+  //             onKeyDown={(e) => e.key === "Enter" && sendMessage()} // Allow sending with Enter
+  //           />
+  //           <button
+  //             onClick={sendMessage}
+  //             className="p-2 text-blue-500 hover:text-blue-600 transition"
+  //           >
+  //             <Send size={20} />
+  //           </button>
+  //         </div>
+  //       </div>
+  //       <div className="flex items-center space-x-2">
+  //         <input 
+  //           type="checkbox" 
+  //           id="changeStyles" 
+  //           checked={changeStyles} 
+  //           onChange={() => setChangeStyles(!changeStyles)} 
+  //           className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring focus:ring-blue-300"
+  //         />
+  //         <label htmlFor="changeStyles" className="text-gray-700 font-medium">Change Style</label>
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
+
   return (
     <div className="flex flex-col h-screen">
+      {/* Header - Fixed height */}
       <div
-        id="defaultLandingPage"
-        className="flex-none p-4"
-        dangerouslySetInnerHTML={{ __html: defaultHtmlContent }}
+        id="header"
+        className="flex-none p-4 bg-white shadow-md"
+        style={{ height: "4rem" }}
+        dangerouslySetInnerHTML={{ __html: header }}
       />
   
+      {/* Main Content - Centering Content */}
       <div
-        className="flex-none w-full bg-gray-200 shadow-lg overflow-auto"
+        id="main-content"
+        className="flex-grow w-full bg-gray-200 shadow-lg flex items-center justify-center overflow-auto"
         style={{
-          height: "calc(100vh - 8rem - 4rem)",
-          maxHeight: "calc(100vw * 9 / 16)",
+          height: "calc(100vh - 4rem - 4rem)", // Ensures it does not go under header/footer
         }}
       >
-        {htmlContent === '' ? (
-          <div className="mt-12 mx-auto max-w-2xl p-6 bg-white shadow-lg rounded-lg text-center">
+        {typeToGetStarted ? (
+          <div className="p-6 bg-white shadow-lg rounded-lg text-center">
             <h2 className="text-2xl font-semibold text-gray-900">
               Start typing below to get started
             </h2>
           </div>
+        ) : loadState ? (
+          <LoadingAnimation />
         ) : (
           <div
             id="generated-website"
@@ -76,8 +177,29 @@ function App() {
         )}
       </div>
   
-      <div className="fixed bottom-0 w-full bg-white shadow-md p-4 flex items-center justify-between">
-        <ChatInput changeInStyle={changeStyles} />
+      {/* Footer - Fixed at Bottom */}
+      <div
+        className="fixed bottom-0 w-full bg-white shadow-md p-4 flex items-center justify-between"
+        style={{ height: "4rem" }}
+      >
+        <div className="w-full max-w-2xl mx-auto p-4">
+          <div className="flex items-center bg-white border border-gray-300 rounded-2xl p-3 shadow-md focus-within:ring-2 focus-within:ring-blue-500">
+            <input
+              type="text"
+              placeholder="Type a message..."
+              className="flex-grow outline-none bg-transparent text-gray-900 text-base px-2"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && sendMessage()} // Allow sending with Enter
+            />
+            <button
+              onClick={sendMessage}
+              className="p-2 text-blue-500 hover:text-blue-600 transition"
+            >
+              <Send size={20} />
+            </button>
+          </div>
+        </div>
         <div className="flex items-center space-x-2">
           <input 
             type="checkbox" 
@@ -86,11 +208,86 @@ function App() {
             onChange={() => setChangeStyles(!changeStyles)} 
             className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring focus:ring-blue-300"
           />
-          <label htmlFor="changeStyles" className="text-gray-700 font-medium">Change Style</label>
+          <label htmlFor="changeStyles" className="text-gray-700 font-medium">Make Changes</label>
         </div>
       </div>
     </div>
   );
+  
+  
+  
+  
+
+    
+
+//   return (
+//     <div className="flex flex-col h-screen">
+//       <div
+//         id="header"
+//         className="flex-none p-4"
+//         dangerouslySetInnerHTML={{ __html: header }}
+//       />
+
+//       <div
+//         className="flex-none w-full bg-gray-200 shadow-lg overflow-auto"
+//         style={{
+//           height: "calc(100vh - 8rem - 4rem)",
+//           maxHeight: "calc(100vw * 9 / 16)",
+//         }}
+//       >
+//         {typeToGetStarted ? (
+//           <div className="mt-12 mx-auto max-w-2xl p-6 bg-white shadow-lg rounded-lg text-center">
+//             <h2 className="text-2xl font-semibold text-gray-900">
+//               Start typing below to get started
+//             </h2>
+//           </div>
+//         ) : loadState ? (
+//           <LoadingAnimation />
+//         ) : (
+//           <div
+//             id="generated-website"
+//             className="w-full h-full overflow-auto"
+//             dangerouslySetInnerHTML={{ __html: htmlContent }}
+//           />
+//         )}
+//       </div>
+
+
+//       <div className="fixed bottom-0 w-full bg-white shadow-md p-4 flex items-center justify-between">
+//         <div className="w-full max-w-2xl mx-auto p-4">
+//           <div className="flex items-center bg-white border border-gray-300 rounded-2xl p-3 shadow-md focus-within:ring-2 focus-within:ring-blue-500">
+//             <input
+//               type="text"
+//               placeholder="Type a message..."
+//               className="flex-grow outline-none bg-transparent text-gray-900 text-base px-2"
+//               value={text}
+//               onChange={(e) => setText(e.target.value)}
+//               onKeyDown={(e) => e.key === "Enter" && sendMessage()} // Allow sending with Enter
+//             />
+//             <button
+//               onClick={sendMessage}
+//               className="p-2 text-blue-500 hover:text-blue-600 transition"
+//             >
+//               <Send size={20} />
+//             </button>
+//           </div>
+//         </div>
+//         <div className="flex items-center space-x-2">
+//           <input 
+//             type="checkbox" 
+//             id="changeStyles" 
+//             checked={changeStyles} 
+//             onChange={() => setChangeStyles(!changeStyles)} 
+//             className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring focus:ring-blue-300"
+//           />
+//           <label htmlFor="changeStyles" className="text-gray-700 font-medium">Change Style</label>
+//         </div>
+//       </div>
+//     </div>
+//   );
 }
+
+
+
 
 export default App;
