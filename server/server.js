@@ -154,7 +154,8 @@ async function makeGeminiCall(text, retryCount = 3) {
   "${first_response}"`;
 
 
-    model = genAI.getGenerativeModel({ model: "gemini-2.5-pro-exp-03-25" });
+    // model = genAI.getGenerativeModel({ model: "gemini-2.5-pro-exp-03-25" });
+    model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
     const result = await model.generateContent(completed_prompt, config);
     const response = result.response.text();
     console.log(response);
