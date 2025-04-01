@@ -181,7 +181,7 @@ async function makeGeminiCall(text, retryCount = 3) {
     }
 
     htmlContent = json_resp['html']
-    htmlContent = makeAllEditable(htmlContent)
+    // htmlContent = makeAllEditable(htmlContent)
 
     updateHtmlAndCss(htmlContent, json_resp['cssUpdates']);
 
@@ -211,15 +211,171 @@ async function changeStyleGemini(text) {
   htmlContent = sliced_res
 
   console.log("updated: -----------------------------------------------")
-  htmlContent = makeAllEditable(htmlContent)
+  // htmlContent = makeAllEditable(htmlContent)
   console.log(htmlContent)
   io.emit('htmlUpdated', { htmlContent });
 
 }
 
+async function makeEcommerceCall(ecommerceInstructions) {
+  console.log('makeEcommerceCall was called');
+  const ecommerce = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopMate - Your Online Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    
+    <!-- Top Navigation Bar -->
+    <nav class="bg-gray-900 text-white p-3 flex justify-between items-center">
+        <h1 class="text-xl font-bold">ShopMate</h1>
+        <div class="flex-grow mx-4">
+            <input type="text" placeholder="Search for products..." class="w-full p-2 rounded-md text-black">
+        </div>
+        <div class="flex space-x-4">
+            <a href="#" class="text-white">Account</a>
+            <a href="#" class="text-white">Orders</a>
+            <a href="#" class="text-white">Cart</a>
+        </div>
+    </nav>
+    
+    <!-- Category Navigation -->
+    <div class="bg-white p-3 shadow-md flex justify-center space-x-6 text-gray-700">
+        <a href="https://www.amazon.in/s?k=electronics" target="_blank" class="hover:text-blue-500">Electronics</a>
+        <a href="https://www.amazon.in/s?k=fashion" target="_blank" class="hover:text-blue-500">Fashion</a>
+        <a href="https://www.amazon.in/s?k=home+kitchen" target="_blank" class="hover:text-blue-500">Home & Kitchen</a>
+        <a href="https://www.amazon.in/s?k=mobiles" target="_blank" class="hover:text-blue-500">Mobiles</a>
+        <a href="https://www.amazon.in/s?k=books" target="_blank" class="hover:text-blue-500">Books</a>
+        <a href="https://www.amazon.in/s?k=more" target="_blank" class="hover:text-blue-500">More</a>
+    </div>
+    
+    <!-- Hero Section -->
+    <section class="w-full bg-purple-200 p-6 flex justify-between items-center">
+        <div>
+            <h2 class="text-3xl font-bold">Home Shopping Spree</h2>
+            <p class="text-lg">Lowest prices of the year on Home, Kitchen & Outdoor</p>
+            <a href="https://www.amazon.in/s?k=home+kitchen" target="_blank" class="bg-yellow-500 text-black px-4 py-2 mt-2 rounded-md inline-block">Shop Now</a>
+        </div>
+        <img src="https://via.placeholder.com/300" alt="Promo" class="rounded-md">
+    </section>
+    
+    <!-- Featured Categories -->
+    <section class="p-8">
+        <h3 class="text-2xl font-semibold mb-4">Popular Categories</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white p-4 shadow-md text-center rounded-md">
+                <h4 class="font-semibold"><a href="https://www.amazon.in/s?k=appliances" target="_blank">Appliances</a></h4>
+            </div>
+            <div class="bg-white p-4 shadow-md text-center rounded-md">
+                <h4 class="font-semibold"><a href="https://www.amazon.in/s?k=home+decor" target="_blank">Home Decor</a></h4>
+            </div>
+            <div class="bg-white p-4 shadow-md text-center rounded-md">
+                <h4 class="font-semibold"><a href="https://www.amazon.in/s?k=headphones" target="_blank">Headphones</a></h4>
+            </div>
+            <div class="bg-white p-4 shadow-md text-center rounded-md">
+                <h4 class="font-semibold"><a href="https://www.amazon.in/s?k=automotive" target="_blank">Automotive</a></h4>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Product Grid -->
+    <main class="p-8">
+        <h3 class="text-2xl font-semibold mb-4">Deals of the Day</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div class="bg-white shadow-md rounded-lg p-4">
+                <img src="https://via.placeholder.com/150" class="w-full h-40 object-cover rounded-md" alt="Product">
+                <h4 class="text-lg font-semibold mt-2">Smartphone</h4>
+                <p class="text-gray-600">Starting at ₹4999</p>
+                <a href="https://www.amazon.in/s?k=smartphone" target="_blank" class="mt-2 w-full block bg-blue-500 text-white py-2 rounded-md text-center">Shop Now</a>
+            </div>
+            <div class="bg-white shadow-md rounded-lg p-4">
+                <img src="https://via.placeholder.com/150" class="w-full h-40 object-cover rounded-md" alt="Product">
+                <h4 class="text-lg font-semibold mt-2">Refrigerators</h4>
+                <p class="text-gray-600">Up to 55% Off</p>
+                <a href="https://www.amazon.in/s?k=refrigerators" target="_blank" class="mt-2 w-full block bg-blue-500 text-white py-2 rounded-md text-center">Shop Now</a>
+            </div>
+            <div class="bg-white shadow-md rounded-lg p-4">
+                <img src="https://via.placeholder.com/150" class="w-full h-40 object-cover rounded-md" alt="Product">
+                <h4 class="text-lg font-semibold mt-2">Headphones</h4>
+                <p class="text-gray-600">Starting ₹149</p>
+                <a href="https://www.amazon.in/s?k=headphones" target="_blank" class="mt-2 w-full block bg-blue-500 text-white py-2 rounded-md text-center">Shop Now</a>
+            </div>
+            <div class="bg-white shadow-md rounded-lg p-4">
+                <img src="https://via.placeholder.com/150" class="w-full h-40 object-cover rounded-md" alt="Product">
+                <h4 class="text-lg font-semibold mt-2">Home Decor</h4>
+                <p class="text-gray-600">Latest Designs</p>
+                <a href="https://www.amazon.in/s?k=home+decor" target="_blank" class="mt-2 w-full block bg-blue-500 text-white py-2 rounded-md text-center">Shop Now</a>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white text-center p-4 mt-8">
+        <p>&copy; 2025 ShopMate. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>`
+const ecommercePrompt = ` The code given above is a base ecommerce website. I want you to modify this website with the following changes. `
+const ecommerceRules = ` You are an AI that generates JSON-formatted updates for a website. Your response must always be a JSON object in this exact structure: {
+  "type": "both",  
+  "html": "<!-- Full HTML content here. IT MUST BE IN A SINGLE LINE, NO MULTI LINE REPLY. -->",
+  "cssUpdates": [
+    { "property": "border-width" }
+  ]
+}
+
+### Formatting Rules:
+1. **Since the reply is in JSON, the entire html part must be single lined.**
+2. **Do not use any characters that would break the json.**
+3. The **"html"** field should contain a full structured website with proper indentation.  
+4. The **cssUpdates** array should not be modified in any way. 
+5. The colors and design should match the theme specified in the request.  
+6. Make the website unique, engaging, and include personality where needed.  
+7. **Do NOT include explanations or text outside of the JSON response.**  
+8. All products and categories should redirect to amazon with product or category in search bar`
+
+
+
+var finalPrompt = ecommerceRules + ecommerce + ecommercePrompt + ecommerceInstructions
+console.log(finalPrompt)
+model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+    const result = await model.generateContent(finalPrompt, config);
+    const response = result.response.text();
+    console.log(response);
+
+    const sliced_res = response.slice(8, response.length - 4); // Ensure this slicing logic is valid
+
+    let json_resp;
+    try {
+      json_resp = JSON.parse(sliced_res);
+    } catch (error) {
+      console.error("JSON parsing failed:", error.message);
+      if (retryCount > 0) {
+        console.log(`Retrying... (${retryCount} attempts left)`);
+        return makeEcommerceCall(text, ecommerceInstructions, retryCount - 1);
+      } else {
+        throw new Error("Max retries reached. JSON parsing failed.");
+      }
+    }
+
+    console.log(json_resp);
+    if (!json_resp['cssUpdates']) {
+      console.log("CSS update doesn't exist for some reason");
+    }
+
+    htmlContent = json_resp['html']
+    // htmlContent = makeAllEditable(htmlContent)
+
+    updateHtmlAndCss(htmlContent, json_resp['cssUpdates']);
+
+}
+
 // Route to receive text from frontend
 app.post("/send-text", (req, res) => {
-  const { text, changeStyles } = req.body;
+  const { text, changeStyles, currentButton } = req.body;
   console.log(req.body)
   console.log("Received text:", text);
   console.log("type of changestyles: " + typeof changeStyles)
@@ -227,8 +383,13 @@ app.post("/send-text", (req, res) => {
   res.json({ message: "Text received successfully", receivedText: text });
   if (changeStyles == true) {
     changeStyleGemini(text)
-  } else {
-    makeGeminiCall(text)
+  } 
+  else if (currentButton == 'ecommerce') {
+      makeEcommerceCall(text)
+
+  }
+  else {
+    makeGeminiCall(text, currentButton)
   }
   
 });
