@@ -1,10 +1,15 @@
-body { font-family: 'Inter', sans-serif; }
-.header { background-color: #146EB4; }
-.header { color: white; }
-.logo { font-weight: 600; }
-.product-card-info button { background-color: #FF9900; }
-.product-card-info button { color: white; }
-.nav { background-color: #333; }
-.nav { color: white; }
-.footer { background-color: #333; }
-.footer { color: white; }
+:root { --primary-color: #FFDA00; }
+:root { --accent-color: #003087; }
+body { font-family: 'Open Sans', sans-serif; }
+body { background-color: var(--accent-color); }
+body { color: #FFFFFF; }
+.font-heading { font-family: 'Impact', sans-serif; }
+.font-body { font-family: 'Open Sans', sans-serif; }
+html { scroll-behavior: smooth; }
+.hero-slogan { animation: fadeInOut 5s infinite; }
+.card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.card-hover:hover { transform: scale(1.05); }
+.card-hover:hover { box-shadow: 0 10px 20px rgba(255, 218, 0, 0.3); }
+.nav-link { transition: color 0.3s ease; }
+.nav-link:hover { color: var(--primary-color); }
+section { overflow-x: hidden; }

@@ -10,6 +10,7 @@ import sanitizeHtml from 'sanitize-html';
 import dotenv from 'dotenv';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from 'axios';
+import { JSDOM } from 'jsdom';
 
 // Load environment variables
 dotenv.config();
@@ -35,7 +36,7 @@ const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 // const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
 
 // or this
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+var model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
 
 const config = {
   max_output_tokens:8192, temperature:0.4, top_p:1, top_k:32
@@ -121,46 +122,6 @@ const first_config = {
   max_output_tokens:1024, temperature:0.4, top_p:1, top_k:32
 }
 
-// async function makeGeminiCall(text) {
-//   console.log('makegeminicall was called')
-//   const first_prompt = `Create a website design with the following specifications:  
-
-//   - **Theme:** [Describe the overall aesthetic and mood]  
-//   - **Sections:** [List the key sections required]  
-//   - **Colors:** [Specify primary and accent colors]  
-//   - **Typography:** [Mention font preferences if any]  
-//   - **Layout:** [Mention grid-based, single-page, multi-page, etc.]  
-//   - **Additional Features:** [Specify animations, effects, interactivity]  
-
-//   ### IMPORTANT: 
-//       - Ensure the design is visually engaging and aligns with the given theme.
-//       - Avoid including images.
-//       - Do **not** include explanations, additional text, or formatting outside the specified format.
-//       - Always keep in mind color contrast of text with background, if background is dark, use light text and vicee versa.
-
-//   Now give reply for this request:
-//   `
-
-//   const first_result = await model.generateContent(first_prompt + text, first_config);
-//   const first_response = first_result.response.text()
-
-//   const completed_prompt = prompt + `Now, generate the JSON response for the following request:  
-// "${first_response}}"` 
-//   const result = await model.generateContent(completed_prompt, config);
-//   const response = result.response.text()
-//   console.log(response)
-//   const sliced_res = response.slice(8, response.length - 4)
-//   // console.log(sliced_res)
-//   const json_resp = JSON.parse(sliced_res)
-//   console.log(json_resp)
-//   if (!json_resp['cssUpdates']) {
-//     console.log("css update dont work for some reason")
-
-//   }
-
-//   updateHtmlAndCss(json_resp['html'], json_resp['cssUpdates'])
-// }
-
 
 async function makeGeminiCall(text, retryCount = 3) {
   console.log('makeGeminiCall was called');
@@ -184,12 +145,16 @@ async function makeGeminiCall(text, retryCount = 3) {
   `;
 
   try {
+    model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
     const first_result = await model.generateContent(first_prompt + text, first_config);
     const first_response = first_result.response.text();
+    console.log(first_response)
 
     const completed_prompt = prompt + `Now, generate the JSON response for the following request:  
   "${first_response}"`;
 
+
+    model = genAI.getGenerativeModel({ model: "gemini-2.5-pro-exp-03-25" });
     const result = await model.generateContent(completed_prompt, config);
     const response = result.response.text();
     console.log(response);
@@ -214,24 +179,38 @@ async function makeGeminiCall(text, retryCount = 3) {
       console.log("CSS update doesn't exist for some reason");
     }
 
-    updateHtmlAndCss(json_resp['html'], json_resp['cssUpdates']);
+    htmlContent = json_resp['html']
+    htmlContent = makeAllEditable(htmlContent)
+
+    updateHtmlAndCss(htmlContent, json_resp['cssUpdates']);
 
   } catch (error) {
     console.error("Error in makeGeminiCall:", error.message);
   }
 }
 
-
+const makeAllEditable = (htmlString) => {
+  const dom = new JSDOM(htmlString);
+  const { document } = dom.window;
+  
+  // Select all elements that can have contenteditable
+  document.querySelectorAll('div, p, span, td, section, article, header, footer, aside, h1, h2, h3, h4, h5, h6')
+      .forEach(el => el.setAttribute('contenteditable', 'true'));
+  
+  return dom.serialize();
+};
 async function changeStyleGemini(text) {
   console.log('changestylegemini was called')
   const extra_instructions = ` This is the website i have now. Only change what i tell you to. Do **not** include explanations, additional text, or formatting outside of the html with tailwind. Now make the changes I ask you to.  ${text}`
   console.log(htmlContent + extra_instructions)
+  model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
   const result = await model.generateContent(htmlContent + extra_instructions, config);
   const response = result.response.text()
   const sliced_res = response.slice(8, response.length - 4)
   htmlContent = sliced_res
 
   console.log("updated: -----------------------------------------------")
+  htmlContent = makeAllEditable(htmlContent)
   console.log(htmlContent)
   io.emit('htmlUpdated', { htmlContent });
 
@@ -255,6 +234,7 @@ app.post("/send-text", (req, res) => {
 
 
 async function updateHtmlAndCss(newHtml, cssUpdates) {
+
   try {
       const response = await axios.post('http://localhost:3000/update', {
           type: 'both',
