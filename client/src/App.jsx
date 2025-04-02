@@ -167,7 +167,7 @@ function App() {
           onChange={() => setChangeStyles(!changeStyles)} 
           className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring focus:ring-blue-300"
         />
-        <label htmlFor="changeStyles" className="font-semibold text-white">Make Changes</label>
+        <label htmlFor="changeStyles" className="font-semibold text-blue-600">Make Changes</label>
       </div>
     </div>
   </div>

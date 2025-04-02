@@ -181,7 +181,7 @@ async function makeGeminiCall(text, retryCount = 3) {
     }
 
     htmlContent = json_resp['html']
-    // htmlContent = makeAllEditable(htmlContent)
+    htmlContent = makeAllEditable(htmlContent)
 
     updateHtmlAndCss(htmlContent, json_resp['cssUpdates']);
 
@@ -190,16 +190,46 @@ async function makeGeminiCall(text, retryCount = 3) {
   }
 }
 
+// const makeAllEditable = (htmlString) => {
+//   const dom = new JSDOM(htmlString);
+//   const { document } = dom.window;
+  
+//   // Select all elements that can have contenteditable
+//   document.querySelectorAll('div, p, span, td, section, article, header, footer, aside, h1, h2, h3, h4, h5, h6')
+//       .forEach(el => el.setAttribute('contenteditable', 'true'));
+  
+//   return dom.serialize();
+// };
+
 const makeAllEditable = (htmlString) => {
   const dom = new JSDOM(htmlString);
   const { document } = dom.window;
-  
-  // Select all elements that can have contenteditable
+
   document.querySelectorAll('div, p, span, td, section, article, header, footer, aside, h1, h2, h3, h4, h5, h6')
-      .forEach(el => el.setAttribute('contenteditable', 'true'));
-  
+    .forEach(el => {
+      // Exclude interactive elements
+      const isClickable = 
+        el.tagName === 'A' || 
+        el.tagName === 'BUTTON' || 
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName) || 
+        el.hasAttribute('onclick') || 
+        el.getAttribute('role') === 'button';
+
+      if (!isClickable) {
+        el.setAttribute('contenteditable', 'true');
+      }
+    });
+
+  // Ensure all <a> elements explicitly have contenteditable set to false
+  document.querySelectorAll('a, button, input, textarea, select')
+    .forEach(el => el.setAttribute('contenteditable', 'false'));
+
   return dom.serialize();
 };
+
+
+
+
 async function changeStyleGemini(text) {
   console.log('changestylegemini was called')
   const extra_instructions = ` This is the website i have now. Only change what i tell you to. Do **not** include explanations, additional text, or formatting outside of the html with tailwind. Now make the changes I ask you to.  ${text}`
@@ -211,7 +241,7 @@ async function changeStyleGemini(text) {
   htmlContent = sliced_res
 
   console.log("updated: -----------------------------------------------")
-  // htmlContent = makeAllEditable(htmlContent)
+  htmlContent = makeAllEditable(htmlContent)
   console.log(htmlContent)
   io.emit('htmlUpdated', { htmlContent });
 
@@ -236,9 +266,9 @@ async function makeEcommerceCall(ecommerceInstructions) {
             <input type="text" placeholder="Search for products..." class="w-full p-2 rounded-md text-black">
         </div>
         <div class="flex space-x-4">
-            <a href="#" class="text-white">Account</a>
-            <a href="#" class="text-white">Orders</a>
-            <a href="#" class="text-white">Cart</a>
+            <a href="https://www.amazon.in/" class="text-white">Account</a>
+            <a href="https://www.amazon.in/" class="text-white">Orders</a>
+            <a href="https://www.amazon.in/" class="text-white">Cart</a>
         </div>
     </nav>
     
@@ -286,25 +316,25 @@ async function makeEcommerceCall(ecommerceInstructions) {
         <h3 class="text-2xl font-semibold mb-4">Deals of the Day</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             <div class="bg-white shadow-md rounded-lg p-4">
-                <img src="https://via.placeholder.com/150" class="w-full h-40 object-cover rounded-md" alt="Product">
+                <img src="https://m.media-amazon.com/images/I/61Ony8rgwEL._AC_UY327_FMwebp_QL65_.jpg" class="w-full h-100 object-cover rounded-md" alt="Product">
                 <h4 class="text-lg font-semibold mt-2">Smartphone</h4>
                 <p class="text-gray-600">Starting at ₹4999</p>
                 <a href="https://www.amazon.in/s?k=smartphone" target="_blank" class="mt-2 w-full block bg-blue-500 text-white py-2 rounded-md text-center">Shop Now</a>
             </div>
             <div class="bg-white shadow-md rounded-lg p-4">
-                <img src="https://via.placeholder.com/150" class="w-full h-40 object-cover rounded-md" alt="Product">
+                <img src="https://havells.com/media/catalog/product/cache/844a913d283fe95e56e39582c5f2767b/g/l/glff343ambc1pc_1_.jpg" class="w-full h-100 object-cover rounded-md" alt="Product">
                 <h4 class="text-lg font-semibold mt-2">Refrigerators</h4>
                 <p class="text-gray-600">Up to 55% Off</p>
                 <a href="https://www.amazon.in/s?k=refrigerators" target="_blank" class="mt-2 w-full block bg-blue-500 text-white py-2 rounded-md text-center">Shop Now</a>
             </div>
             <div class="bg-white shadow-md rounded-lg p-4">
-                <img src="https://via.placeholder.com/150" class="w-full h-40 object-cover rounded-md" alt="Product">
+                <img src="https://m.media-amazon.com/images/I/51rpbVmi9XL._AC_UY327_FMwebp_QL65_.jpg" class="w-full h-100 object-cover rounded-md" alt="Product">
                 <h4 class="text-lg font-semibold mt-2">Headphones</h4>
                 <p class="text-gray-600">Starting ₹149</p>
                 <a href="https://www.amazon.in/s?k=headphones" target="_blank" class="mt-2 w-full block bg-blue-500 text-white py-2 rounded-md text-center">Shop Now</a>
             </div>
             <div class="bg-white shadow-md rounded-lg p-4">
-                <img src="https://via.placeholder.com/150" class="w-full h-40 object-cover rounded-md" alt="Product">
+                <img src="https://m.media-amazon.com/images/I/81o9azf3ntL._AC_UL480_FMwebp_QL65_.jpg" class="w-full h-100 object-cover rounded-md" alt="Product">
                 <h4 class="text-lg font-semibold mt-2">Home Decor</h4>
                 <p class="text-gray-600">Latest Designs</p>
                 <a href="https://www.amazon.in/s?k=home+decor" target="_blank" class="mt-2 w-full block bg-blue-500 text-white py-2 rounded-md text-center">Shop Now</a>
@@ -317,7 +347,8 @@ async function makeEcommerceCall(ecommerceInstructions) {
         <p>&copy; 2025 ShopMate. All Rights Reserved.</p>
     </footer>
 </body>
-</html>`
+</html>
+`
 const ecommercePrompt = ` The code given above is a base ecommerce website. I want you to modify this website with the following changes. `
 const ecommerceRules = ` You are an AI that generates JSON-formatted updates for a website. Your response must always be a JSON object in this exact structure: {
   "type": "both",  
@@ -367,7 +398,7 @@ model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
     }
 
     htmlContent = json_resp['html']
-    // htmlContent = makeAllEditable(htmlContent)
+    htmlContent = makeAllEditable(htmlContent)
 
     updateHtmlAndCss(htmlContent, json_resp['cssUpdates']);
 
@@ -490,7 +521,7 @@ model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
     }
 
     htmlContent = json_resp['html']
-    // htmlContent = makeAllEditable(htmlContent)
+    htmlContent = makeAllEditable(htmlContent)
 
     updateHtmlAndCss(htmlContent, json_resp['cssUpdates']);
 
@@ -512,10 +543,10 @@ async function makeGovernmentCall(governmentInstructions) {
     </header>
     
     <nav class="bg-green-600 text-white p-2 flex justify-around">
-        <a href="#" class="hover:underline">முகப்பு</a>
-        <a href="#services" class="hover:underline">இ-சேவை</a>
-        <a href="#news" class="hover:underline">அறிவிப்புகள்</a>
-        <a href="#contact" class="hover:underline">தொடர்பு</a>
+        <a href="https://www.tnesevai.tn.gov.in/" class="hover:underline">முகப்பு</a>
+        <a href="https://www.tnesevai.tn.gov.in/" class="hover:underline">இ-சேவை</a>
+        <a href="https://www.tnesevai.tn.gov.in/" class="hover:underline">அறிவிப்புகள்</a>
+        <a href="https://www.tnesevai.tn.gov.in/" class="hover:underline">தொடர்பு</a>
     </nav>
     
     <main class="p-6">
@@ -528,17 +559,17 @@ async function makeGovernmentCall(governmentInstructions) {
             <div class="bg-white p-4 shadow-md">
                 <h2 class="text-green-700 font-bold">முக்கிய இணைப்புகள்</h2>
                 <ul class="mt-2">
-                    <li><a href="#" class="text-blue-600 hover:underline">YouTube</a></li>
-                    <li><a href="#" class="text-blue-600 hover:underline">Twitter</a></li>
-                    <li><a href="#" class="text-blue-600 hover:underline">Facebook</a></li>
-                    <li><a href="#" class="text-blue-600 hover:underline">அரசு ஆணைகள்</a></li>
+                    <li><a href="https://www.youtube.com/results?search_query=tnesevai" class="text-blue-600 hover:underline">YouTube</a></li>
+                    <li><a href="https://x.com/tnega_official" class="text-blue-600 hover:underline">Twitter</a></li>
+                    <li><a href="https://www.facebook.com/tnegaofficial/" class="text-blue-600 hover:underline">Facebook</a></li>
+                    <li><a href="https://www.tnesevai.tn.gov.in/" class="text-blue-600 hover:underline">அரசு ஆணைகள்</a></li>
                 </ul>
             </div>
             
             <div class="bg-white p-4 shadow-md">
                 <h2 class="text-green-700 font-bold">உள்நுழை</h2>
-                <a href="#" class="block bg-green-600 text-white text-center p-2 mt-2 rounded">துறை உள்நுழைவு</a>
-                <a href="#" class="block bg-green-600 text-white text-center p-2 mt-2 rounded">பயனர் உள்நுழைவு</a>
+                <a href="https://www.tnesevai.tn.gov.in/" class="block bg-green-600 text-white text-center p-2 mt-2 rounded">துறை உள்நுழைவு</a>
+                <a href="https://www.tnesevai.tn.gov.in/" class="block bg-green-600 text-white text-center p-2 mt-2 rounded">பயனர் உள்நுழைவு</a>
             </div>
         </div>
 
@@ -548,17 +579,17 @@ async function makeGovernmentCall(governmentInstructions) {
                 <div class="bg-white p-4 shadow-md">
                     <h3 class="font-bold text-lg">ஜன்மச் சான்றிதழ்</h3>
                     <p class="text-gray-700">பிறந்த சான்றிதழ் பெற இங்கு கிளிக் செய்யவும்.</p>
-                    <a href="#" class="text-blue-600 hover:underline">மேலும்</a>
+                    <a href="https://www.tnesevai.tn.gov.in/" class="text-blue-600 hover:underline">மேலும்</a>
                 </div>
                 <div class="bg-white p-4 shadow-md">
                     <h3 class="font-bold text-lg">மரணச் சான்றிதழ்</h3>
                     <p class="text-gray-700">மரணச் சான்றிதழ் பெற இங்கு கிளிக் செய்யவும்.</p>
-                    <a href="#" class="text-blue-600 hover:underline">மேலும்</a>
+                    <a href="https://www.tnesevai.tn.gov.in/" class="text-blue-600 hover:underline">மேலும்</a>
                 </div>
                 <div class="bg-white p-4 shadow-md">
                     <h3 class="font-bold text-lg">வருமானச் சான்றிதழ்</h3>
                     <p class="text-gray-700">வருமானச் சான்றிதழ் பெற இங்கு கிளிக் செய்யவும்.</p>
-                    <a href="#" class="text-blue-600 hover:underline">மேலும்</a>
+                    <a href="https://www.tnesevai.tn.gov.in/" class="text-blue-600 hover:underline">மேலும்</a>
                 </div>
             </div>
         </section>
@@ -566,9 +597,9 @@ async function makeGovernmentCall(governmentInstructions) {
         <section id="news" class="mt-6">
             <h2 class="text-xl font-bold text-green-700">சமீபத்திய அறிவிப்புகள்</h2>
             <ul class="mt-4 bg-white p-4 shadow-md">
-                <li class="border-b py-2">🔹 <a href="#" class="text-blue-600 hover:underline">2025-ம் ஆண்டு புதிய அரசு திட்டங்கள்</a></li>
-                <li class="border-b py-2">🔹 <a href="#" class="text-blue-600 hover:underline">குடிமக்களுக்கு இனிய அறிவிப்புகள்</a></li>
-                <li class="py-2">🔹 <a href="#" class="text-blue-600 hover:underline">e-Sevai பற்றிய புதிய மாற்றங்கள்</a></li>
+                <li class="border-b py-2">🔹 <a href="https://www.tnesevai.tn.gov.in/" class="text-blue-600 hover:underline">2025-ம் ஆண்டு புதிய அரசு திட்டங்கள்</a></li>
+                <li class="border-b py-2">🔹 <a href="https://www.tnesevai.tn.gov.in/" class="text-blue-600 hover:underline">குடிமக்களுக்கு இனிய அறிவிப்புகள்</a></li>
+                <li class="py-2">🔹 <a href="https://www.tnesevai.tn.gov.in/" class="text-blue-600 hover:underline">e-Sevai பற்றிய புதிய மாற்றங்கள்</a></li>
             </ul>
         </section>
     </main>
@@ -598,7 +629,8 @@ const governmentRules = ` You are an AI that generates JSON-formatted updates fo
 4. The **cssUpdates** array should not be modified in any way. 
 5. The colors and design should match the theme specified in the request.  
 6. Make the website unique, engaging, and include personality where needed.  
-7. **Do NOT include explanations or text outside of the JSON response.**  
+7. **Do NOT include explanations or text outside of the JSON response.**
+8. All buttons and links in website should redirect to https://www.tnesevai.tn.gov.in/
 `
 
 
@@ -631,7 +663,7 @@ model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
     }
 
     htmlContent = json_resp['html']
-    // htmlContent = makeAllEditable(htmlContent)
+    htmlContent = makeAllEditable(htmlContent)
 
     updateHtmlAndCss(htmlContent, json_resp['cssUpdates']);
 
@@ -654,9 +686,9 @@ async function makeCommunityCall(communityInstructions) {
         <div class="container mx-auto flex justify-between items-center">
             <div class="text-xl font-semibold">REC Community</div>
             <nav>
-                <a href="#" class="text-white hover:text-green-200 mx-4">Home</a>
-                <a href="#" class="text-white hover:text-green-200 mx-4">Ask a Question</a>
-                <a href="#" class="text-white hover:text-green-200 mx-4">Profile</a>
+                <a href="https://www.reddit.com/" class="text-white hover:text-green-200 mx-4">Home</a>
+                <a href="https://www.reddit.com/" class="text-white hover:text-green-200 mx-4">Ask a Question</a>
+                <a href="https://www.reddit.com/" class="text-white hover:text-green-200 mx-4">Profile</a>
             </nav>
         </div>
     </header>
@@ -749,7 +781,8 @@ const communityRules = ` You are an AI that generates JSON-formatted updates for
 4. The **cssUpdates** array should not be modified in any way. 
 5. The colors and design should match the theme specified in the request.  
 6. Make the website unique, engaging, and include personality where needed.  
-7. **Do NOT include explanations or text outside of the JSON response.**  
+7. **Do NOT include explanations or text outside of the JSON response.**
+8. All buttons and redirects in the website should redirect to www.reddit.com
 `
 
 
@@ -782,7 +815,7 @@ model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
     }
 
     htmlContent = json_resp['html']
-    // htmlContent = makeAllEditable(htmlContent)
+    htmlContent = makeAllEditable(htmlContent)
 
     updateHtmlAndCss(htmlContent, json_resp['cssUpdates']);
 
