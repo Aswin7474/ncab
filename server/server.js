@@ -373,6 +373,421 @@ model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
 
 }
 
+
+
+async function makeNewsCall(newsInstructions) {
+  console.log('makeNewsCall was called');
+  const news = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Website</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-red-600 text-white p-4 text-center text-2xl font-bold">
+        Times of News
+    </header>
+    
+    <nav class="bg-yellow-400 p-3 flex justify-around">
+        <a href="https://timesofindia.indiatimes.com/" class="text-black font-semibold">Home</a>
+        <a href="https://timesofindia.indiatimes.com/" class="text-black font-semibold">World</a>
+        <a href="https://timesofindia.indiatimes.com/" class="text-black font-semibold">Business</a>
+        <a href="https://timesofindia.indiatimes.com/" class="text-black font-semibold">Technology</a>
+    </nav>
+
+    <div class="container mx-auto p-5 grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="bg-white p-6 rounded-lg shadow-lg h-80">
+            <h2 class="text-xl font-bold mt-2">Breaking News</h2>
+            <p class="text-gray-600">Major political and economic events are unfolding. Government officials are making crucial decisions that will impact the economy. Stay tuned for further developments.</p>
+            <a href="https://timesofindia.indiatimes.com/" class="text-blue-500 mt-2 inline-block">Read more</a>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-lg h-80">
+            <h2 class="text-xl font-bold mt-2">Technology</h2>
+            <p class="text-gray-600">The tech industry is experiencing rapid growth with advancements in AI, machine learning, and blockchain. Experts predict major shifts in digital trends.</p>
+            <a href="https://timesofindia.indiatimes.com/" class="text-blue-500 mt-2 inline-block">Read more</a>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-lg h-80">
+            <h2 class="text-xl font-bold mt-2">Sports</h2>
+            <p class="text-gray-600">Excitement is building up for the upcoming world championship. Players are preparing for a highly competitive season filled with surprises.</p>
+            <a href="https://timesofindia.indiatimes.com/" class="text-blue-500 mt-2 inline-block">Read more</a>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-lg h-80">
+            <h2 class="text-xl font-bold mt-2">Entertainment</h2>
+            <p class="text-gray-600">The entertainment industry is buzzing with new movie releases and trending TV shows. Fans eagerly await the premiere of upcoming blockbusters.</p>
+            <a href="https://timesofindia.indiatimes.com/" class="text-blue-500 mt-2 inline-block">Read more</a>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-lg h-80">
+            <h2 class="text-xl font-bold mt-2">Health</h2>
+            <p class="text-gray-600">Health experts are emphasizing the importance of balanced nutrition and mental well-being. New research highlights innovative treatment options.</p>
+            <a href="https://timesofindia.indiatimes.com/" class="text-blue-500 mt-2 inline-block">Read more</a>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-lg h-80">
+            <h2 class="text-xl font-bold mt-2">Science</h2>
+            <p class="text-gray-600">Breakthroughs in space exploration and medical sciences are capturing global attention. Scientists are making strides in understanding the universe.</p>
+            <a href="https://timesofindia.indiatimes.com/" class="text-blue-500 mt-2 inline-block">Read more</a>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 text-white text-center p-4 mt-5">
+        &copy; 2025 Times of News. All Rights Reserved.
+    </footer>
+</body>
+</html>`
+const newsPrompt = ` The code given above is a base news website. For each category of news, create filler news that redirect to times of india page. I want you to modify this website with the following changes. `
+const newsRules = ` You are an AI that generates JSON-formatted updates for a website. Your response must always be a JSON object in this exact structure: {
+  "type": "both",  
+  "html": "<!-- Full HTML content here. IT MUST BE IN A SINGLE LINE, NO MULTI LINE REPLY. -->",
+  "cssUpdates": [
+    { "property": "border-width" }
+  ]
+}
+
+### Formatting Rules:
+1. **Since the reply is in JSON, the entire html part must be single lined.**
+2. **Do not use any characters that would break the json.**
+3. The **"html"** field should contain a full structured website with proper indentation.  
+4. The **cssUpdates** array should not be modified in any way. 
+5. The colors and design should match the theme specified in the request.  
+6. Make the website unique, engaging, and include personality where needed.  
+7. **Do NOT include explanations or text outside of the JSON response.**  
+8. All buttons should redirect to relevant news websites such as times of india.
+`
+
+
+
+var finalPrompt = newsRules + news + newsPrompt + newsInstructions
+console.log(finalPrompt)
+model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+    const result = await model.generateContent(finalPrompt, config);
+    const response = result.response.text();
+    console.log(response);
+
+    const sliced_res = response.slice(8, response.length - 4); // Ensure this slicing logic is valid
+
+    let json_resp;
+    try {
+      json_resp = JSON.parse(sliced_res);
+    } catch (error) {
+      console.error("JSON parsing failed:", error.message);
+      if (retryCount > 0) {
+        console.log(`Retrying... (${retryCount} attempts left)`);
+        return makeNewsCall(text, ecommerceInstructions, retryCount - 1);
+      } else {
+        throw new Error("Max retries reached. JSON parsing failed.");
+      }
+    }
+
+    console.log(json_resp);
+    if (!json_resp['cssUpdates']) {
+      console.log("CSS update doesn't exist for some reason");
+    }
+
+    htmlContent = json_resp['html']
+    // htmlContent = makeAllEditable(htmlContent)
+
+    updateHtmlAndCss(htmlContent, json_resp['cssUpdates']);
+
+}
+
+async function makeGovernmentCall(governmentInstructions) {
+  console.log('makeGovernmentCall was called');
+  const government = `<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>e-Sevai | Tamil Nadu Government</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-green-700 text-white p-4 text-center text-2xl font-bold">
+        <h1>தமிழ்நாடு மின் ஆளுமை முகமை</h1>
+    </header>
+    
+    <nav class="bg-green-600 text-white p-2 flex justify-around">
+        <a href="#" class="hover:underline">முகப்பு</a>
+        <a href="#services" class="hover:underline">இ-சேவை</a>
+        <a href="#news" class="hover:underline">அறிவிப்புகள்</a>
+        <a href="#contact" class="hover:underline">தொடர்பு</a>
+    </nav>
+    
+    <main class="p-6">
+        <div class="grid grid-cols-3 gap-4">
+            <div class="bg-white p-4 shadow-md">
+                <h2 class="text-green-700 font-bold">TNeGA</h2>
+                <img src="https://cdn.pixabay.com/photo/2023/08/26/05/23/india-map-8214176_640.png" alt="Tamil Nadu Map" class="mt-2">
+            </div>
+            
+            <div class="bg-white p-4 shadow-md">
+                <h2 class="text-green-700 font-bold">முக்கிய இணைப்புகள்</h2>
+                <ul class="mt-2">
+                    <li><a href="#" class="text-blue-600 hover:underline">YouTube</a></li>
+                    <li><a href="#" class="text-blue-600 hover:underline">Twitter</a></li>
+                    <li><a href="#" class="text-blue-600 hover:underline">Facebook</a></li>
+                    <li><a href="#" class="text-blue-600 hover:underline">அரசு ஆணைகள்</a></li>
+                </ul>
+            </div>
+            
+            <div class="bg-white p-4 shadow-md">
+                <h2 class="text-green-700 font-bold">உள்நுழை</h2>
+                <a href="#" class="block bg-green-600 text-white text-center p-2 mt-2 rounded">துறை உள்நுழைவு</a>
+                <a href="#" class="block bg-green-600 text-white text-center p-2 mt-2 rounded">பயனர் உள்நுழைவு</a>
+            </div>
+        </div>
+
+        <section id="services" class="mt-6">
+            <h2 class="text-xl font-bold text-green-700">நிறுவன சேவைகள்</h2>
+            <div class="grid grid-cols-3 gap-4 mt-4">
+                <div class="bg-white p-4 shadow-md">
+                    <h3 class="font-bold text-lg">ஜன்மச் சான்றிதழ்</h3>
+                    <p class="text-gray-700">பிறந்த சான்றிதழ் பெற இங்கு கிளிக் செய்யவும்.</p>
+                    <a href="#" class="text-blue-600 hover:underline">மேலும்</a>
+                </div>
+                <div class="bg-white p-4 shadow-md">
+                    <h3 class="font-bold text-lg">மரணச் சான்றிதழ்</h3>
+                    <p class="text-gray-700">மரணச் சான்றிதழ் பெற இங்கு கிளிக் செய்யவும்.</p>
+                    <a href="#" class="text-blue-600 hover:underline">மேலும்</a>
+                </div>
+                <div class="bg-white p-4 shadow-md">
+                    <h3 class="font-bold text-lg">வருமானச் சான்றிதழ்</h3>
+                    <p class="text-gray-700">வருமானச் சான்றிதழ் பெற இங்கு கிளிக் செய்யவும்.</p>
+                    <a href="#" class="text-blue-600 hover:underline">மேலும்</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="news" class="mt-6">
+            <h2 class="text-xl font-bold text-green-700">சமீபத்திய அறிவிப்புகள்</h2>
+            <ul class="mt-4 bg-white p-4 shadow-md">
+                <li class="border-b py-2">🔹 <a href="#" class="text-blue-600 hover:underline">2025-ம் ஆண்டு புதிய அரசு திட்டங்கள்</a></li>
+                <li class="border-b py-2">🔹 <a href="#" class="text-blue-600 hover:underline">குடிமக்களுக்கு இனிய அறிவிப்புகள்</a></li>
+                <li class="py-2">🔹 <a href="#" class="text-blue-600 hover:underline">e-Sevai பற்றிய புதிய மாற்றங்கள்</a></li>
+            </ul>
+        </section>
+    </main>
+
+    <footer id="contact" class="bg-green-700 text-white p-4 text-center mt-6">
+        <h2 class="text-lg font-bold">தொடர்பு கொள்ள</h2>
+        <p>📍 சென்னை, தமிழ்நாடு</p>
+        <p>📞 1800-123-4567</p>
+        <p>✉️ support@tnesevai.tn.gov.in</p>
+    </footer>
+</body>
+</html>`
+
+const governmentPrompt = ` The code given above is a base tamil government website. I want you to modify this website with the following changes. `
+const governmentRules = ` You are an AI that generates JSON-formatted updates for a website. Your response must always be a JSON object in this exact structure: {
+  "type": "both",  
+  "html": "<!-- Full HTML content here. IT MUST BE IN A SINGLE LINE, NO MULTI LINE REPLY. -->",
+  "cssUpdates": [
+    { "property": "border-width" }
+  ]
+}
+
+### Formatting Rules:
+1. **Since the reply is in JSON, the entire html part must be single lined.**
+2. **Do not use any characters that would break the json.**
+3. The **"html"** field should contain a full structured website with proper indentation.  
+4. The **cssUpdates** array should not be modified in any way. 
+5. The colors and design should match the theme specified in the request.  
+6. Make the website unique, engaging, and include personality where needed.  
+7. **Do NOT include explanations or text outside of the JSON response.**  
+`
+
+
+
+var finalPrompt = governmentRules + government + governmentPrompt + governmentInstructions
+console.log(finalPrompt)
+model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+    const result = await model.generateContent(finalPrompt, config);
+    const response = result.response.text();
+    console.log(response);
+
+    const sliced_res = response.slice(8, response.length - 4); // Ensure this slicing logic is valid
+
+    let json_resp;
+    try {
+      json_resp = JSON.parse(sliced_res);
+    } catch (error) {
+      console.error("JSON parsing failed:", error.message);
+      if (retryCount > 0) {
+        console.log(`Retrying... (${retryCount} attempts left)`);
+        return makeGovernmentCall(text, ecommerceInstructions, retryCount - 1);
+      } else {
+        throw new Error("Max retries reached. JSON parsing failed.");
+      }
+    }
+
+    console.log(json_resp);
+    if (!json_resp['cssUpdates']) {
+      console.log("CSS update doesn't exist for some reason");
+    }
+
+    htmlContent = json_resp['html']
+    // htmlContent = makeAllEditable(htmlContent)
+
+    updateHtmlAndCss(htmlContent, json_resp['cssUpdates']);
+
+}
+
+async function makeCommunityCall(communityInstructions) {
+  console.log('makeCommunityCall was called');
+  const community = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REC Community</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+
+    <!-- Header Section -->
+    <header class="bg-green-600 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-xl font-semibold">REC Community</div>
+            <nav>
+                <a href="#" class="text-white hover:text-green-200 mx-4">Home</a>
+                <a href="#" class="text-white hover:text-green-200 mx-4">Ask a Question</a>
+                <a href="#" class="text-white hover:text-green-200 mx-4">Profile</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Section -->
+    <main class="container mx-auto p-6">
+
+        <!-- Ask a Question Section -->
+        <section class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Ask a Question</h2>
+            <form action="#" class="bg-white p-6 rounded-lg shadow-md">
+                <label for="question" class="block text-gray-700 font-semibold mb-2">Your Question</label>
+                <textarea id="question" class="w-full p-4 bg-gray-100 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500" rows="4" placeholder="Ask something about REC..."></textarea>
+                <button type="submit" class="mt-4 w-full bg-green-600 text-white p-3 rounded-md hover:bg-green-700">Post Question</button>
+            </form>
+        </section>
+
+        <!-- Question Feed Section -->
+        <section>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Recent Questions</h2>
+            <div class="space-y-6">
+                
+                <!-- Single Question Card -->
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <div class="flex space-x-4">
+                        <div class="flex flex-col items-center justify-center text-center bg-gray-200 p-3 rounded-lg">
+                            <button class="bg-blue-500 text-white px-4 py-2 rounded-full mb-2 hover:bg-blue-600 transition">Upvote</button>
+                            <p class="text-gray-600">120</p>
+                            <button class="bg-red-500 text-white px-4 py-2 rounded-full mb-2 hover:bg-red-600 transition">Downvote</button>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-gray-800">What is the placement rate at Rajalakshmi Engineering College?</h3>
+                            <p class="text-gray-600 mt-2">Can anyone provide details on the placement stats at REC and the top companies that visit?</p>
+                            <div class="mt-4 text-sm text-gray-500">
+                                <span>Asked by <span class="font-semibold">User123</span></span> | <span>1 hour ago</span>
+                            </div>
+                            <button class="mt-4 bg-yellow-500 text-white px-4 py-2 rounded-full hover:bg-yellow-600 transition">Answer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Another Question Card -->
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <div class="flex space-x-4">
+                        <div class="flex flex-col items-center justify-center text-center bg-gray-200 p-3 rounded-lg">
+                            <button class="bg-blue-500 text-white px-4 py-2 rounded-full mb-2 hover:bg-blue-600 transition">Upvote</button>
+                            <p class="text-gray-600">85</p>
+                            <button class="bg-red-500 text-white px-4 py-2 rounded-full mb-2 hover:bg-red-600 transition">Downvote</button>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-gray-800">What are the hostel facilities like at REC?</h3>
+                            <p class="text-gray-600 mt-2">Can someone share their experience with the hostel facilities at Rajalakshmi Engineering College?</p>
+                            <div class="mt-4 text-sm text-gray-500">
+                                <span>Asked by <span class="font-semibold">User456</span></span> | <span>3 hours ago</span>
+                            </div>
+                            <button class="mt-4 bg-yellow-500 text-white px-4 py-2 rounded-full hover:bg-yellow-600 transition">Answer</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white p-4 mt-10">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2025 Rajalakshmi Engineering College Community. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
+`
+
+const communityPrompt = ` The code given above is a community website like forum or reddit. I want you to modify this website with the following changes. `
+const communityRules = ` You are an AI that generates JSON-formatted updates for a website. Your response must always be a JSON object in this exact structure: {
+  "type": "both",  
+  "html": "<!-- Full HTML content here. IT MUST BE IN A SINGLE LINE, NO MULTI LINE REPLY. -->",
+  "cssUpdates": [
+    { "property": "border-width" }
+  ]
+}
+
+### Formatting Rules:
+1. **Since the reply is in JSON, the entire html part must be single lined.**
+2. **Do not use any characters that would break the json.**
+3. The **"html"** field should contain a full structured website with proper indentation.  
+4. The **cssUpdates** array should not be modified in any way. 
+5. The colors and design should match the theme specified in the request.  
+6. Make the website unique, engaging, and include personality where needed.  
+7. **Do NOT include explanations or text outside of the JSON response.**  
+`
+
+
+
+var finalPrompt = communityRules + community + communityPrompt + communityInstructions
+console.log(finalPrompt)
+model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+    const result = await model.generateContent(finalPrompt, config);
+    const response = result.response.text();
+    console.log(response);
+
+    const sliced_res = response.slice(8, response.length - 4); // Ensure this slicing logic is valid
+
+    let json_resp;
+    try {
+      json_resp = JSON.parse(sliced_res);
+    } catch (error) {
+      console.error("JSON parsing failed:", error.message);
+      if (retryCount > 0) {
+        console.log(`Retrying... (${retryCount} attempts left)`);
+        return makeCommunityCall(text, ecommerceInstructions, retryCount - 1);
+      } else {
+        throw new Error("Max retries reached. JSON parsing failed.");
+      }
+    }
+
+    console.log(json_resp);
+    if (!json_resp['cssUpdates']) {
+      console.log("CSS update doesn't exist for some reason");
+    }
+
+    htmlContent = json_resp['html']
+    // htmlContent = makeAllEditable(htmlContent)
+
+    updateHtmlAndCss(htmlContent, json_resp['cssUpdates']);
+
+} 
+
 // Route to receive text from frontend
 app.post("/send-text", (req, res) => {
   const { text, changeStyles, currentButton } = req.body;
@@ -386,7 +801,15 @@ app.post("/send-text", (req, res) => {
   } 
   else if (currentButton == 'ecommerce') {
       makeEcommerceCall(text)
-
+  }
+  else if (currentButton == 'news') {
+    makeNewsCall(text)
+  }
+  else if (currentButton == 'government') {
+    makeGovernmentCall(text)
+  }
+  else if (currentButton == 'community') {
+    makeCommunityCall(text)
   }
   else {
     makeGeminiCall(text, currentButton)

@@ -13,7 +13,7 @@ function App() {
   const [changeStyles, setChangeStyles] = useState(false);
   const [text, setText] = useState("");
   const [loadState, setLoadState] = useState(false)
-  const [currentButton, setCurrentButton] = useState('own');
+  const [currentButton, setCurrentButton] = useState('Create your own');
 
   const handleClick = (event) => {
     setCurrentButton(event.currentTarget.id);
@@ -107,20 +107,23 @@ function App() {
             </h2>
           </div>
 
-           <div id="buttons" className="fixed flex flex-col ml-auto bottom-[10vh] right-2 space-y-4">
-      {['ecommerce', 'news', 'government', 'community', 'own'].map((id) => (
-        <button
-          key={id}
-          id={id}
-          className={` text-gray-800 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm  ${
-            currentButton === id ? 'bg-pink-200' : 'bg-white'
-          }`}
-          onClick={handleClick}
-        >
-          {id.charAt(0).toUpperCase() + id.slice(1)}
-        </button>
-      ))}
-    </div>
+          <div className="fixed flex flex-col ml-auto bottom-[7.6vh] right-2 space-y-4">
+            <h3 className="text-white text-xl font-bold ">Quick Access:</h3>
+            <div id="buttons" className="flex flex-col space-y-4">
+              {['ecommerce', 'news', 'government', 'community', 'Create your own'].map((id) => (
+                <button
+                  key={id}
+                  id={id}
+                  className={`text-gray-800 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm  ${
+                    currentButton === id ? 'bg-pink-200' : 'bg-white'
+                  }`}
+                  onClick={handleClick}
+                >
+                  {id.charAt(0).toUpperCase() + id.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
         </>
       ) : loadState ? (
         <LoadingAnimation />
