@@ -1,7 +1,1 @@
-.navbar a:hover { color: #000000; }
-.hero { background: linear-gradient(to right, #FFDA00, #003087); }
-.player-card:hover { transform: scale(1.05); }
-.background-animation::before { background-color: rgba(255, 218, 0, 0.3); }
-.background-animation::after { background-color: rgba(0, 48, 135, 0.3); }
-.contact-form button:hover { background-color: #FFDA00; }
-.contact-form button:hover { color: #003087; }
+undefined { border-width: undefined; }

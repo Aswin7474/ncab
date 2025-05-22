@@ -470,7 +470,8 @@ async function makeNewsCall(newsInstructions) {
         &copy; 2025 Times of News. All Rights Reserved.
     </footer>
 </body>
-</html>`
+</html>
+`
 const newsPrompt = ` The code given above is a base news website. For each category of news, create filler news that redirect to times of india page. I want you to modify this website with the following changes. `
 const newsRules = ` You are an AI that generates JSON-formatted updates for a website. Your response must always be a JSON object in this exact structure: {
   "type": "both",  
@@ -611,7 +612,8 @@ async function makeGovernmentCall(governmentInstructions) {
         <p>✉️ support@tnesevai.tn.gov.in</p>
     </footer>
 </body>
-</html>`
+</html>
+`
 
 const governmentPrompt = ` The code given above is a base tamil government website. I want you to modify this website with the following changes. `
 const governmentRules = ` You are an AI that generates JSON-formatted updates for a website. Your response must always be a JSON object in this exact structure: {
@@ -677,7 +679,7 @@ async function makeCommunityCall(communityInstructions) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REC Community</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com" defer></script>
 </head>
 <body class="bg-gray-50 font-sans">
 
@@ -686,9 +688,9 @@ async function makeCommunityCall(communityInstructions) {
         <div class="container mx-auto flex justify-between items-center">
             <div class="text-xl font-semibold">REC Community</div>
             <nav>
-                <a href="https://www.reddit.com/" class="text-white hover:text-green-200 mx-4">Home</a>
-                <a href="https://www.reddit.com/" class="text-white hover:text-green-200 mx-4">Ask a Question</a>
-                <a href="https://www.reddit.com/" class="text-white hover:text-green-200 mx-4">Profile</a>
+                <a href="https://www.reddit.com/" target="_blank" class="text-white hover:text-green-200 mx-4">Home</a>
+                <a href="https://www.reddit.com/" target="_blank" class="text-white hover:text-green-200 mx-4">Ask a Question</a>
+                <a href="https://www.reddit.com/" target="_blank" class="text-white hover:text-green-200 mx-4">Profile</a>
             </nav>
         </div>
     </header>
@@ -699,7 +701,7 @@ async function makeCommunityCall(communityInstructions) {
         <!-- Ask a Question Section -->
         <section class="mb-6">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Ask a Question</h2>
-            <form action="#" class="bg-white p-6 rounded-lg shadow-md">
+            <form id="questionForm" class="bg-white p-6 rounded-lg shadow-md">
                 <label for="question" class="block text-gray-700 font-semibold mb-2">Your Question</label>
                 <textarea id="question" class="w-full p-4 bg-gray-100 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500" rows="4" placeholder="Ask something about REC..."></textarea>
                 <button type="submit" class="mt-4 w-full bg-green-600 text-white p-3 rounded-md hover:bg-green-700">Post Question</button>
@@ -715,9 +717,9 @@ async function makeCommunityCall(communityInstructions) {
                 <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all">
                     <div class="flex space-x-4">
                         <div class="flex flex-col items-center justify-center text-center bg-gray-200 p-3 rounded-lg">
-                            <button class="bg-blue-500 text-white px-4 py-2 rounded-full mb-2 hover:bg-blue-600 transition">Upvote</button>
+                            <button type="button" class="bg-blue-500 text-white px-4 py-2 rounded-full mb-2 hover:bg-blue-600 transition">Upvote</button>
                             <p class="text-gray-600">120</p>
-                            <button class="bg-red-500 text-white px-4 py-2 rounded-full mb-2 hover:bg-red-600 transition">Downvote</button>
+                            <button type="button" class="bg-red-500 text-white px-4 py-2 rounded-full mb-2 hover:bg-red-600 transition">Downvote</button>
                         </div>
                         <div class="flex-1">
                             <h3 class="text-xl font-semibold text-gray-800">What is the placement rate at Rajalakshmi Engineering College?</h3>
@@ -725,7 +727,7 @@ async function makeCommunityCall(communityInstructions) {
                             <div class="mt-4 text-sm text-gray-500">
                                 <span>Asked by <span class="font-semibold">User123</span></span> | <span>1 hour ago</span>
                             </div>
-                            <button class="mt-4 bg-yellow-500 text-white px-4 py-2 rounded-full hover:bg-yellow-600 transition">Answer</button>
+                            <button type="button" class="mt-4 bg-yellow-500 text-white px-4 py-2 rounded-full hover:bg-yellow-600 transition">Answer</button>
                         </div>
                     </div>
                 </div>
@@ -734,9 +736,9 @@ async function makeCommunityCall(communityInstructions) {
                 <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all">
                     <div class="flex space-x-4">
                         <div class="flex flex-col items-center justify-center text-center bg-gray-200 p-3 rounded-lg">
-                            <button class="bg-blue-500 text-white px-4 py-2 rounded-full mb-2 hover:bg-blue-600 transition">Upvote</button>
+                            <button type="button" class="bg-blue-500 text-white px-4 py-2 rounded-full mb-2 hover:bg-blue-600 transition">Upvote</button>
                             <p class="text-gray-600">85</p>
-                            <button class="bg-red-500 text-white px-4 py-2 rounded-full mb-2 hover:bg-red-600 transition">Downvote</button>
+                            <button type="button" class="bg-red-500 text-white px-4 py-2 rounded-full mb-2 hover:bg-red-600 transition">Downvote</button>
                         </div>
                         <div class="flex-1">
                             <h3 class="text-xl font-semibold text-gray-800">What are the hostel facilities like at REC?</h3>
@@ -744,7 +746,7 @@ async function makeCommunityCall(communityInstructions) {
                             <div class="mt-4 text-sm text-gray-500">
                                 <span>Asked by <span class="font-semibold">User456</span></span> | <span>3 hours ago</span>
                             </div>
-                            <button class="mt-4 bg-yellow-500 text-white px-4 py-2 rounded-full hover:bg-yellow-600 transition">Answer</button>
+                            <button type="button" class="mt-4 bg-yellow-500 text-white px-4 py-2 rounded-full hover:bg-yellow-600 transition">Answer</button>
                         </div>
                     </div>
                 </div>
@@ -761,8 +763,17 @@ async function makeCommunityCall(communityInstructions) {
         </div>
     </footer>
 
+    <!-- JavaScript to prevent form reload -->
+    <script>
+        document.getElementById("questionForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            alert("Your question has been posted!");
+        });
+    </script>
+
 </body>
 </html>
+
 `
 
 const communityPrompt = ` The code given above is a community website like forum or reddit. I want you to modify this website with the following changes. `
